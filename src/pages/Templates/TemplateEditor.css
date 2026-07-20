@@ -1,0 +1,68 @@
+.template-editor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.template-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.editor-card {
+  background-color: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.editor-card h3 {
+  margin: 0 0 20px 0;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 12px;
+}
+
+.error-banner {
+  background-color: #fce8e6;
+  color: #c5221f;
+  border: 1px solid #fad2cf;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  border-top: 1px solid #eaeaea;
+  padding-top: 24px;
+  margin-top: 12px;
+}
+
+.btn-save-template {
+  background-color: var(--color-orange, #F24607);
+  color: white;
+  border: none;
+  padding: 12px 32px;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(242, 70, 7, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-save-template:hover {
+  background-color: #d13d05;
+}
+
+.btn-save-template:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

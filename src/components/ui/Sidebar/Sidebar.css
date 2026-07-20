@@ -1,0 +1,59 @@
+.sidebar-container {
+  width: 260px;
+  background-color: var(--color-primary-blue, #0F398C);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.sidebar-logo {
+  padding: 16px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebar-logo-img {
+  max-width: 100%;
+  max-height: 56px;
+  object-fit: contain;
+}
+
+/* Removidos estilos antigos do h2 e p */
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  gap: 4px;
+}
+
+.nav-item {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: none;
+  padding: 16px 24px;
+  text-align: left;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding-left: 28px;
+}
+
+.nav-item.active {
+  background-color: var(--color-secondary-blue, #076DF2);
+  color: white;
+  border-left: 4px solid var(--color-oliva, #A3D9D3);
+}

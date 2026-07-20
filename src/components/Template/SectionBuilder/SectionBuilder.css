@@ -1,0 +1,139 @@
+.section-builder-card {
+  background-color: #fafbfc;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.section-builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eaeaea;
+  padding-bottom: 12px;
+}
+
+.section-builder-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.btn-remove-section {
+  background: transparent;
+  color: #d32f2f;
+  border: 1px solid #d32f2f;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-remove-section:hover {
+  background-color: #fce8e6;
+}
+
+.form-group-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group-row .form-group {
+  flex: 1;
+}
+
+.form-group-row .form-group.size-small {
+  flex: 0 0 120px;
+}
+
+.points-builder-wrapper {
+  margin-top: 24px;
+  border-top: 1px dashed #e1e4e8;
+  padding-top: 16px;
+}
+
+.points-builder-wrapper h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.no-points-msg {
+  color: #777;
+  font-size: 13px;
+  padding: 16px;
+  background-color: #fff;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.points-builder-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+  background-color: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.points-builder-table th {
+  background-color: #f6f8fa;
+  padding: 10px 16px;
+  font-size: 12px;
+  color: #586069;
+  text-align: left;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.points-builder-table td {
+  padding: 8px 16px;
+  border-bottom: 1px solid #e1e4e8;
+  vertical-align: middle;
+}
+
+.table-input {
+  margin: 0 !important;
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+}
+
+.btn-remove-point {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #d32f2f;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.btn-remove-point:hover {
+  background-color: #fce8e6;
+}
+
+.btn-add-point {
+  background-color: white;
+  border: 1px dashed var(--color-primary-blue, #0F398C);
+  color: var(--color-primary-blue, #0F398C);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 13px;
+  width: 100%;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.btn-add-point:hover {
+  background-color: rgba(15, 57, 140, 0.05);
+}

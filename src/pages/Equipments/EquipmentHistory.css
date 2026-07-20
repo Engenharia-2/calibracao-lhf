@@ -1,0 +1,51 @@
+.equipment-history-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.btn-action-view-sheet {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: var(--color-orange, #F24607);
+  color: white;
+  border: none;
+}
+
+.btn-action-view-sheet:hover {
+  background-color: #d13d05;
+}
+
+.readonly-sheet-modal {
+  max-width: 90% !important;
+  width: 1200px !important;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.readonly-sheet-modal .modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 24px;
+}
+
+.readonly-meta-banner {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 16px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  font-size: 14px;
+  color: #495057;
+}
+
+.readonly-meta-banner strong {
+  color: #212529;
+}

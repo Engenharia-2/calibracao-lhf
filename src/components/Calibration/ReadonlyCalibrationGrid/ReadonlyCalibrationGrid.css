@@ -1,0 +1,14 @@
+.readonly-grid-card {
+  background-color: #fdfdfd;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.readonly-cell {
+  text-align: center;
+  font-weight: 500;
+  color: #495057;
+  background-color: #f8f9fa;
+}
