@@ -20,18 +20,10 @@
   background-color: #d13d05;
 }
 
-.readonly-sheet-modal {
-  max-width: 90% !important;
-  width: 1200px !important;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.readonly-sheet-modal .modal-body {
-  overflow-y: auto;
-  flex: 1;
-  padding: 24px;
+.modal-size-xxl .dynamic-table th,
+.modal-size-xxl .dynamic-table td {
+  padding: 8px 10px;
+  font-size: 13px;
 }
 
 .readonly-meta-banner {

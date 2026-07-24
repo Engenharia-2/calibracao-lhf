@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { IEquipment } from '../../services/equipments/ApiEquipmentsRepository';
-import { ReadonlyCalibrationGrid } from '../../components/Calibration/ReadonlyCalibrationGrid/ReadonlyCalibrationGrid';
+import { ReadonlyCalibrationGrid, ReadonlySection } from '../../components/Calibration/ReadonlyCalibrationGrid/ReadonlyCalibrationGrid';
 import { Button } from '../../components/ui/Button/Button';
+import { Modal } from '../../components/ui/Modal/Modal';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { CalibrationPDFDocument } from '../../components/Calibration/CalibrationPDFDocument/CalibrationPDFDocument';
 import './EquipmentHistory.css';
 
 interface EquipmentHistoryProps {
@@ -18,7 +21,7 @@ interface CalibrationRecord {
   temperature: number;
   humidity: number;
   mains_voltage: number | null;
-  readings: any; // JSON
+  readings: ReadonlySection[];
   overall_status: 'Aprovado' | 'Reprovado';
   started_at: string | null;
   created_at: string;
@@ -127,7 +130,7 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
                           {rec.overall_status}
                         </span>
                       </td>
-                      <td>
+                      <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         <Button 
                           size="sm"
                           variant="danger" 
@@ -135,6 +138,24 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
                         >
                           Visualizar Planilha
                         </Button>
+                        <PDFDownloadLink
+                          document={
+                            <CalibrationPDFDocument
+                              record={rec}
+                              equipmentName={equipment.name}
+                              equipmentNs={equipment.ns}
+                              equipmentOp={equipment.op}
+                            />
+                          }
+                          fileName={`Certificado-${rec.id}.pdf`}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          {({ loading }) => (
+                            <Button size="sm" variant="outline" disabled={loading}>
+                              {loading ? '...' : 'PDF'}
+                            </Button>
+                          )}
+                        </PDFDownloadLink>
                       </td>
                     </tr>
                   ))}
@@ -145,48 +166,42 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
         </div>
       </div>
 
-      {/* Modal / Overlay de Visualização da Planilha Gravada */}
-      {selectedRecord && (
-        <div className="modal-overlay" onClick={() => setSelectedRecord(null)}>
-          <div className="modal-content readonly-sheet-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Planilha de Calibração Gravada - ID #{selectedRecord.id}</h3>
-              <button className="btn-close" onClick={() => setSelectedRecord(null)}>&times;</button>
-            </div>
-            <div className="modal-body">
-              {/* Infos Clima e Condições do dia */}
-              <div className="readonly-meta-banner">
-                <div><strong>Operador:</strong> {selectedRecord.operator}</div>
-                <div><strong>Data:</strong> {new Date(selectedRecord.created_at).toLocaleString('pt-BR')}</div>
-                <div><strong>Duração:</strong> {getDuration(selectedRecord.started_at, selectedRecord.created_at)}</div>
-                <div><strong>Temperatura:</strong> {selectedRecord.temperature} °C</div>
-                <div><strong>Umidade:</strong> {selectedRecord.humidity} %</div>
-                {selectedRecord.mains_voltage && (
-                  <div><strong>Rede VCA:</strong> {selectedRecord.mains_voltage} V</div>
-                )}
-                <div>
-                  <strong>Status Geral:</strong>{' '}
-                  <span className={`status-badge ${selectedRecord.overall_status.toLowerCase()}`}>
-                    {selectedRecord.overall_status}
-                  </span>
-                </div>
+      {/* Modal de Visualização da Planilha Gravada */}
+      <Modal
+        isOpen={!!selectedRecord}
+        onClose={() => setSelectedRecord(null)}
+        title={selectedRecord ? `Planilha de Calibração Gravada - ID #${selectedRecord.id}` : ''}
+        size="xxl"
+      >
+        {selectedRecord && (
+          <>
+            {/* Infos Clima e Condições do dia */}
+            <div className="readonly-meta-banner">
+              <div><strong>Operador:</strong> {selectedRecord.operator}</div>
+              <div><strong>Data:</strong> {new Date(selectedRecord.created_at).toLocaleString('pt-BR')}</div>
+              <div><strong>Duração:</strong> {getDuration(selectedRecord.started_at, selectedRecord.created_at)}</div>
+              <div><strong>Temperatura:</strong> {selectedRecord.temperature} °C</div>
+              <div><strong>Umidade:</strong> {selectedRecord.humidity} %</div>
+              {selectedRecord.mains_voltage && (
+                <div><strong>Rede VCA:</strong> {selectedRecord.mains_voltage} V</div>
+              )}
+              <div>
+                <strong>Status Geral:</strong>{' '}
+                <span className={`status-badge ${selectedRecord.overall_status.toLowerCase()}`}>
+                  {selectedRecord.overall_status}
+                </span>
               </div>
+            </div>
 
-              {/* Tabelas de Leitura */}
-              <div className="grids-container" style={{ marginTop: '20px' }}>
-                {(selectedRecord.readings || []).map((section: any, sIdx: number) => (
-                  <ReadonlyCalibrationGrid key={sIdx} section={section} />
-                ))}
-              </div>
+            {/* Tabelas de Leitura */}
+            <div className="grids-container" style={{ marginTop: '20px' }}>
+              {(selectedRecord.readings || []).map((section, sIdx) => (
+                <ReadonlyCalibrationGrid key={sIdx} section={section} />
+              ))}
             </div>
-            <div className="modal-footer">
-              <Button variant="secondary" onClick={() => setSelectedRecord(null)}>
-                Fechar Auditoria
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

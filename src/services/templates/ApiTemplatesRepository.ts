@@ -22,6 +22,7 @@ export interface ICalibrationTemplate {
   name: string;
   equipment_type: string;
   tolerance: number;
+  default_standard_id?: number | null;
   structure: ITemplateSection[] | string;
   created_at?: string;
   updated_at?: string;

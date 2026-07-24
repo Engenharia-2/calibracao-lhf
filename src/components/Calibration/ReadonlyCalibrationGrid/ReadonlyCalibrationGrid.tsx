@@ -1,6 +1,6 @@
 import './ReadonlyCalibrationGrid.css';
 
-interface ReadonlyPoint {
+export interface ReadonlyPoint {
   group: string | null;
   targetValue: number;
   unit: string;
@@ -8,11 +8,12 @@ interface ReadonlyPoint {
   averageStandard: number;
   averageEquipment: number;
   deviation: number;
+  uncertaintyExpanded?: number;
   tolerance: number;
   status: 'Aprovado' | 'Reprovado';
 }
 
-interface ReadonlySection {
+export interface ReadonlySection {
   sectionName: string;
   points: ReadonlyPoint[];
 }
@@ -66,6 +67,7 @@ export function ReadonlyCalibrationGrid({ section }: ReadonlyCalibrationGridProp
               <th rowSpan={2}>Média Padrão</th>
               <th rowSpan={2}>Média Equip.</th>
               <th rowSpan={2}>Desvio</th>
+              <th rowSpan={2}>Incerteza (U)</th>
               <th rowSpan={2}>Tolerância</th>
               <th rowSpan={2}>Status</th>
             </tr>
@@ -103,6 +105,7 @@ export function ReadonlyCalibrationGrid({ section }: ReadonlyCalibrationGridProp
                 <td className="result-cell">{point.averageStandard}</td>
                 <td className="result-cell">{point.averageEquipment}</td>
                 <td className="result-cell font-bold">{point.deviation}</td>
+                <td className="result-cell">{point.uncertaintyExpanded !== undefined ? point.uncertaintyExpanded : '-'}</td>
                 <td className="result-cell">±{point.tolerance}</td>
                 <td className="status-cell">
                   <span className={`status-badge ${point.status.toLowerCase()}`}>

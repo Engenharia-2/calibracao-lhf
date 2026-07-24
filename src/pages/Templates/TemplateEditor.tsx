@@ -14,8 +14,14 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
     setTemplateId,
     name,
     setName,
+    equipmentType,
+    setEquipmentType,
     tolerance,
     setTolerance,
+    defaultStandardId,
+    handleStandardSelect,
+    reloadSectionsFromStandard,
+    standards,
     sections,
     isLoading,
     error,
@@ -73,6 +79,23 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
               />
             </div>
             <div className="form-group">
+              <label htmlFor="equipmentType">Tipo do Equipamento</label>
+              <select
+                id="equipmentType"
+                className="form-input"
+                value={equipmentType}
+                onChange={(e) => setEquipmentType(e.target.value)}
+                disabled={isLoading}
+                required
+              >
+                <option value="MEGOMETRO">Megômetro</option>
+                <option value="SURGE">Surge Test</option>
+                <option value="HIPOT">Hipot</option>
+                <option value="MILIOHMIMETRO">Miliohmímetro</option>
+                <option value="OUTRO">Outro</option>
+              </select>
+            </div>
+            <div className="form-group">
               <label htmlFor="tolerance">Tolerância Máxima Permitida (MPE %)</label>
               <input
                 id="tolerance"
@@ -86,15 +109,41 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
                 required
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="defaultStandard">Padrão de Referência RBC Padrão</label>
+              <select
+                id="defaultStandard"
+                className="form-input"
+                value={defaultStandardId}
+                onChange={(e) => handleStandardSelect(e.target.value)}
+                disabled={isLoading}
+              >
+                <option value="">-- Nenhum Padrão Vinculado --</option>
+                {standards.map(std => (
+                  <option key={std.id} value={std.id}>
+                    [{std.code}] {std.name} ({std.certificate_number})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         <div className="sections-container">
           <div className="sections-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3>Estrutura das Seções de Teste</h3>
-            <Button type="button" variant="primary" onClick={addSection} disabled={isLoading}>
-              + Adicionar Seção
-            </Button>
+            <div>
+              <h3>Estrutura das Seções de Teste</h3>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {defaultStandardId && (
+                <Button type="button" variant="outline" onClick={reloadSectionsFromStandard} disabled={isLoading}>
+                  Recarregar Seções do Padrão
+                </Button>
+              )}
+              <Button type="button" variant="primary" onClick={addSection} disabled={isLoading}>
+                + Adicionar Seção
+              </Button>
+            </div>
           </div>
 
           {sections.map((section, sIdx) => (

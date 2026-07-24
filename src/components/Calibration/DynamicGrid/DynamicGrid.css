@@ -82,6 +82,13 @@
   background-color: white;
 }
 
+.input-cell.standard-col .grid-input {
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-weight: 600;
+  border-color: #cbd5e1;
+}
+
 .grid-input {
   width: 100%;
   border: 1px solid #ccc;

@@ -56,6 +56,34 @@ contextBridge.exposeInMainWorld('electron', {
     console.log('[Preload] Solicitando exclusão de template...', id);
     return ipcRenderer.invoke('templates:delete', id);
   },
+  getStandards: () => {
+    console.log('[Preload] Buscando todos os padrões de referência...');
+    return ipcRenderer.invoke('standards:getAll');
+  },
+  getStandardById: (id: number | string) => {
+    console.log('[Preload] Buscando padrão pelo ID:', id);
+    return ipcRenderer.invoke('standards:getById', id);
+  },
+  createStandard: (standard: any) => {
+    console.log('[Preload] Solicitando criação de padrão...', standard);
+    return ipcRenderer.invoke('standards:create', standard);
+  },
+  updateStandard: (id: number | string, standard: any) => {
+    console.log('[Preload] Solicitando atualização de padrão...', { id, standard });
+    return ipcRenderer.invoke('standards:update', id, standard);
+  },
+  deleteStandard: (id: number | string) => {
+    console.log('[Preload] Solicitando exclusão de padrão...', id);
+    return ipcRenderer.invoke('standards:delete', id);
+  },
+  onStandardsUpdated: (callback: () => void) => {
+    console.log('[Preload] Registrando ouvinte de atualização de padrões...');
+    const subscription = () => callback();
+    ipcRenderer.on('standards:updated', subscription);
+    return () => {
+      ipcRenderer.removeListener('standards:updated', subscription);
+    };
+  },
   on: (channel: string, listener: (event: any, ...args: any[]) => void) => {
     ipcRenderer.on(channel, listener)
   },

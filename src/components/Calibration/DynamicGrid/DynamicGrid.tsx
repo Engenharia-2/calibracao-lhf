@@ -80,10 +80,11 @@ export function DynamicGrid({
                   Ciclo {c + 1}
                 </th>
               ))}
-              <th rowSpan={2}>Média Padrão</th>
+              <th rowSpan={2}>Média Padrão (VR)</th>
               <th rowSpan={2}>Média Equip.</th>
               <th rowSpan={2}>Desvio</th>
-              <th rowSpan={2}>Tolerância</th>
+              <th rowSpan={2}>Incerteza (U)</th>
+              <th rowSpan={2}>Tolerância (MPE)</th>
               <th rowSpan={2}>Status</th>
             </tr>
             <tr>
@@ -102,6 +103,7 @@ export function DynamicGrid({
                 averageStandard: 0,
                 averageEquipment: 0,
                 deviation: 0,
+                uncertaintyExpanded: 0,
                 tolerance: 0,
                 status: 'Reprovado'
               };
@@ -118,7 +120,7 @@ export function DynamicGrid({
                     section.columns.map(col => {
                       const val = gridState[sectionIndex]?.[pIdx]?.[c]?.[col.key] ?? '';
                       return (
-                        <td key={`${c}-${col.key}`} className="input-cell">
+                        <td key={`${c}-${col.key}`} className={`input-cell ${col.key === 'standard' ? 'standard-col' : ''}`}>
                           <GridInput
                             value={val}
                             onChange={(newVal) => updateCell(sectionIndex, pIdx, c, col.key, newVal)}
@@ -132,6 +134,7 @@ export function DynamicGrid({
                   <td className="result-cell">{calcs.averageStandard}</td>
                   <td className="result-cell">{calcs.averageEquipment}</td>
                   <td className="result-cell font-bold">{calcs.deviation}</td>
+                  <td className="result-cell">{calcs.uncertaintyExpanded ?? 0}</td>
                   <td className="result-cell">±{calcs.tolerance}</td>
                   <td className="status-cell">
                     <span className={`status-badge ${calcs.status.toLowerCase()}`}>

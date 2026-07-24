@@ -16,6 +16,12 @@ declare global {
       createTemplate: (template: any) => Promise<any>;
       updateTemplate: (id: string, template: any) => Promise<any>;
       deleteTemplate: (id: string) => Promise<void>;
+      getStandards: () => Promise<any[]>;
+      getStandardById: (id: number | string) => Promise<any>;
+      createStandard: (standard: any) => Promise<any>;
+      updateStandard: (id: number | string, standard: any) => Promise<any>;
+      deleteStandard: (id: number | string) => Promise<void>;
+      onStandardsUpdated: (callback: () => void) => () => void;
       on: (channel: string, listener: (event: any, ...args: any[]) => void) => void;
       removeListener: (channel: string, listener: (...args: any[]) => void) => void;
     };

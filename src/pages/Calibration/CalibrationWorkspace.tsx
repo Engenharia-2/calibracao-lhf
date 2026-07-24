@@ -16,6 +16,7 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     templates,
     selectedTemplateId,
     setSelectedTemplateId,
+    selectedStandard,
     templateDetail,
     operator,
     setOperator,
@@ -30,7 +31,10 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     getPointCalculations,
     handleSave,
     isLoading,
-    error
+    error,
+    clients,
+    selectedClientId,
+    setSelectedClientId
   } = useCalibrationWorkspace({ currentUser, equipment, onSuccess: onBack });
 
   const struct = templateDetail
@@ -65,24 +69,32 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
         {/* Escolha do Formulário */}
         <div className="workspace-card select-form-card">
           <h3>Selecione o Modelo de Formulário</h3>
-          <div className="form-group">
-            <label htmlFor="templateSelect">Formulário de Calibração</label>
-            <select
-              id="templateSelect"
-              className="form-input"
-              value={selectedTemplateId}
-              onChange={(e) => setSelectedTemplateId(e.target.value)}
-              disabled={isLoading}
-              required
-            >
-              <option value="">-- Selecione o Formulário --</option>
-              {templates.map(t => (
-                <option key={t.id} value={t.id}>
-                  [{t.id}] {t.name} (Tolerância: ±{t.tolerance}%)
-                </option>
-              ))}
-            </select>
+          <div className="form-group-row">
+            <div className="form-group">
+              <label htmlFor="templateSelect">Formulário de Calibração</label>
+              <select
+                id="templateSelect"
+                className="form-input"
+                value={selectedTemplateId}
+                onChange={(e) => setSelectedTemplateId(e.target.value)}
+                disabled={isLoading}
+                required
+              >
+                <option value="">-- Selecione o Formulário --</option>
+                {templates.map(t => (
+                  <option key={t.id} value={t.id}>
+                    [{t.id}] {t.name} (Tolerância: ±{t.tolerance}%)
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {selectedStandard && (
+            <div style={{ marginTop: '12px', fontSize: '13px', color: '#047857', backgroundColor: '#ecfdf5', padding: '10px 14px', borderRadius: '6px', border: '1px solid #a7f3d0' }}>
+              <strong>✓ Padrão de Referência RBC Vinculado:</strong> [{selectedStandard.code}] {selectedStandard.name} | <strong>Certificado:</strong> {selectedStandard.certificate_number} | <strong>Validade:</strong> {new Date(selectedStandard.validity_date).toLocaleDateString('pt-BR')}
+            </div>
+          )}
         </div>
 
         {selectedTemplateId && templateDetail && (
@@ -90,6 +102,25 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
             {/* Dados Ambientais */}
             <div className="workspace-card environmental-card">
               <h3>Condições Ambientais e Operador</h3>
+              <div className="form-group-row" style={{ marginBottom: '16px' }}>
+                <div className="form-group">
+                  <label htmlFor="clientSelect">Cliente do Certificado</label>
+                  <select
+                    id="clientSelect"
+                    className="form-input"
+                    value={selectedClientId}
+                    onChange={(e) => setSelectedClientId(e.target.value)}
+                    disabled={isLoading}
+                  >
+                    <option value="">-- LHF (Uso Interno) --</option>
+                    {clients.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.company} ({c.cnpj})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <div className="form-group-row">
                 <div className="form-group">
                   <label htmlFor="operator">Operador / Técnico</label>

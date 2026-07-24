@@ -1,5 +1,6 @@
 import { ITemplateSection, ITemplatePoint } from '../../../services/templates/ApiTemplatesRepository';
 import { Button } from '../../ui/Button/Button';
+import { UnitSelect } from '../../ui/UnitSelect/UnitSelect';
 import './SectionBuilder.css';
 
 interface SectionBuilderProps {
@@ -71,12 +72,9 @@ export function SectionBuilder({
           </div>
           <div className="form-group size-small">
             <label>Unidade Padrão</label>
-            <input
-              type="text"
-              className="form-input"
+            <UnitSelect
               value={section.defaultUnit}
-              onChange={(e) => onUpdate({ defaultUnit: e.target.value })}
-              placeholder="Ex: kV, mA, MΩ"
+              onChangeValue={(val) => onUpdate({ defaultUnit: val })}
             />
           </div>
           <div className="form-group size-small">
@@ -144,12 +142,10 @@ export function SectionBuilder({
                     />
                   </td>
                   <td>
-                    <input
-                      type="text"
-                      className="form-input table-input"
-                      value={point.unit || ''}
-                      onChange={(e) => onUpdatePoint(pIdx, { unit: e.target.value })}
-                      placeholder={section.defaultUnit}
+                    <UnitSelect
+                      className="table-input"
+                      value={point.unit || section.defaultUnit}
+                      onChangeValue={(val) => onUpdatePoint(pIdx, { unit: val })}
                     />
                   </td>
                   <td>

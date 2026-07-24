@@ -7,6 +7,7 @@ import { ApiCalibrationRepository } from '../src/services/calibration/ApiCalibra
 import { ApiEquipmentsRepository } from '../src/services/equipments/ApiEquipmentsRepository'
 import { ApiClientsRepository } from '../src/services/clients/ApiClientsRepository'
 import { ApiTemplatesRepository } from '../src/services/templates/ApiTemplatesRepository'
+import { ApiStandardsRepository } from '../src/services/standards/ApiStandardsRepository'
 
 // The built directory structure
 process.env.DIST = path.join(__dirname, '../dist')
@@ -31,6 +32,9 @@ const clientsRepository = new ApiClientsRepository()
 
 // Initialize Templates Repository
 const templatesRepository = new ApiTemplatesRepository()
+
+// Initialize Standards Repository
+const standardsRepository = new ApiStandardsRepository()
 
 // Setup IPC handlers
 ipcMain.handle('auth:login', async (_, email, password) => {
@@ -85,8 +89,34 @@ ipcMain.handle('templates:delete', async (_, id) => {
   return templatesRepository.delete(id)
 })
 
+ipcMain.handle('standards:getAll', async () => {
+  return standardsRepository.getAll()
+})
+
+ipcMain.handle('standards:getById', async (_, id) => {
+  return standardsRepository.getById(id)
+})
+
+ipcMain.handle('standards:create', async (_, standard) => {
+  const res = await standardsRepository.create(standard)
+  win?.webContents.send('standards:updated')
+  return res
+})
+
+ipcMain.handle('standards:update', async (_, id, standard) => {
+  const res = await standardsRepository.update(id, standard)
+  win?.webContents.send('standards:updated')
+  return res
+})
+
+ipcMain.handle('standards:delete', async (_, id) => {
+  const res = await standardsRepository.delete(id)
+  win?.webContents.send('standards:updated')
+  return res
+})
+
 function createWindow() {
-  const iconPath = path.join(__dirname, '../src/assets/logo-calibracao.png')
+  const iconPath = path.join(__dirname, '../src/assets/logo-calibracao-lhf.png')
   win = new BrowserWindow({
     width: 1600,
     height: 768,

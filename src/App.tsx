@@ -6,6 +6,7 @@ import { Templates } from './pages/Templates/Templates'
 import { Equipments } from './pages/Equipments/Equipments'
 import { Clients } from './pages/Clients/Clients'
 import { Calibration } from './pages/Calibration/Calibration'
+import { Standards } from './pages/Standards/Standards'
 import { IEquipment } from './services/equipments/ApiEquipmentsRepository'
 
 import { MainLayout } from './components/layout/MainLayout/MainLayout'
@@ -72,6 +73,7 @@ function App() {
       {activePage === 'formularios' && <Templates />}
       {activePage === 'equipamentos' && <Equipments onCalibrate={handleCalibrateRedirect} />}
       {activePage === 'clientes' && <Clients />}
+      {activePage === 'padroes' && <Standards />}
       {activePage === 'calibracao' && (
         <Calibration 
           currentUser={currentUser}
