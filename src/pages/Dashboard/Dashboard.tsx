@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import './Dashboard.css';
-import { MegometerForm } from '../../components/Calibration/MegometerForm';
 
 export function Dashboard() {
   const [activeModule, setActiveModule] = useState<string | null>(null);
@@ -30,7 +29,12 @@ export function Dashboard() {
             ← Voltar ao Menu
           </button>
           
-          {activeModule === 'megometer' && <MegometerForm />}
+          {activeModule === 'megometer' && (
+            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+              <h3>Módulo Megômetro 5kV</h3>
+              <p>Por favor, selecione ou crie um equipamento do tipo Megômetro e execute a calibração utilizando a aba "Calibração" no menu lateral.</p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -34,11 +34,9 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
   return (
     <aside className={`sidebar-container ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="sidebar-header">
-        {!isCollapsed && (
-          <div className="sidebar-logo">
-            <img src={logoLhf} alt="LHF Calibrações" className="sidebar-logo-img" />
-          </div>
-        )}
+        <div className={`sidebar-logo ${isCollapsed ? 'collapsed' : ''}`}>
+          <img src={logoLhf} alt="LHF Calibrações" className="sidebar-logo-img" />
+        </div>
         <button 
           className="sidebar-toggle-btn"
           onClick={toggleSidebar}

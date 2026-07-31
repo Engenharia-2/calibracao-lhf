@@ -33,7 +33,7 @@
 .menu-card {
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -81,7 +81,7 @@
 .dashboard-content {
   background-color: var(--surface-color);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   padding: 2rem;
   box-shadow: var(--shadow-md);
   animation: slideUp var(--transition-normal);

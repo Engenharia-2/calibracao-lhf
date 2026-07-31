@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { ITemplateSection, ITemplatePoint } from '../../../services/templates/ApiTemplatesRepository';
 import { Button } from '../../ui/Button/Button';
 import { UnitSelect } from '../../ui/UnitSelect/UnitSelect';
@@ -22,6 +23,15 @@ export function SectionBuilder({
   onRemovePoint,
   onUpdatePoint
 }: SectionBuilderProps) {
+
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+  console.log(`[SectionBuilder.tsx #${sectionIndex + 1}] RENDER #${renderCount.current} - sectionName: "${section.name}", pointsCount: ${section.points.length}`);
+
+  useEffect(() => {
+    console.log(`[SectionBuilder.tsx #${sectionIndex + 1}] COMPONENT MOUNTED`);
+    return () => console.log(`[SectionBuilder.tsx #${sectionIndex + 1}] COMPONENT UNMOUNTED`);
+  }, []);
 
   const handleColumnsPresetChange = (preset: string) => {
     if (preset === 'standard_set') {
@@ -65,8 +75,8 @@ export function SectionBuilder({
             <input
               type="text"
               className="form-input"
-              value={section.name}
-              onChange={(e) => onUpdate({ name: e.target.value })}
+              defaultValue={section.name}
+              onBlur={(e) => onUpdate({ name: e.target.value })}
               placeholder="Ex: Tensão (VK AC) ou Resistência"
             />
           </div>
@@ -84,8 +94,8 @@ export function SectionBuilder({
               className="form-input"
               min="1"
               max="10"
-              value={section.cyclesCount}
-              onChange={(e) => onUpdate({ cyclesCount: Math.max(1, Number(e.target.value)) })}
+              defaultValue={section.cyclesCount}
+              onBlur={(e) => onUpdate({ cyclesCount: Math.max(1, Number(e.target.value)) })}
             />
           </div>
         </div>
@@ -121,13 +131,13 @@ export function SectionBuilder({
             </thead>
             <tbody>
               {section.points.map((point, pIdx) => (
-                <tr key={pIdx}>
+                <tr key={point.id || pIdx}>
                   <td>
                     <input
                       type="text"
                       className="form-input table-input"
-                      value={point.group || ''}
-                      onChange={(e) => onUpdatePoint(pIdx, { group: e.target.value })}
+                      defaultValue={point.group || ''}
+                      onBlur={(e) => onUpdatePoint(pIdx, { group: e.target.value })}
                       placeholder="Ex: E1, E2"
                     />
                   </td>
@@ -136,8 +146,8 @@ export function SectionBuilder({
                       type="number"
                       step="any"
                       className="form-input table-input"
-                      value={point.targetValue || ''}
-                      onChange={(e) => onUpdatePoint(pIdx, { targetValue: Number(e.target.value) })}
+                      defaultValue={point.targetValue || ''}
+                      onBlur={(e) => onUpdatePoint(pIdx, { targetValue: Number(e.target.value) })}
                       placeholder="Ex: 10.005"
                     />
                   </td>

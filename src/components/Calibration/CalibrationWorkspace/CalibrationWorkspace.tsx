@@ -1,8 +1,9 @@
-import { IEquipment } from '../../services/equipments/ApiEquipmentsRepository';
-import { useCalibrationWorkspace } from '../../hooks/useCalibrationWorkspace';
-import { DynamicGrid } from '../../components/Calibration/DynamicGrid/DynamicGrid';
-import { Button } from '../../components/ui/Button/Button';
-import { UserData } from '../../App';
+import { IEquipment } from '../../../services/equipments/ApiEquipmentsRepository';
+import { useCalibrationWorkspace } from '../../../hooks/useCalibrationWorkspace';
+import { DynamicGrid } from '../DynamicGrid/DynamicGrid';
+import { Button } from '../../ui/Button/Button';
+import { PageHeader } from '../../ui/PageHeader/PageHeader';
+import { UserData } from '../../../App';
 import './CalibrationWorkspace.css';
 
 interface CalibrationWorkspaceProps {
@@ -18,14 +19,10 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     setSelectedTemplateId,
     selectedStandard,
     templateDetail,
-    operator,
-    setOperator,
-    temperature,
-    setTemperature,
-    humidity,
-    setHumidity,
-    mainsVoltage,
-    setMainsVoltage,
+    operatorRef,
+    temperatureRef,
+    humidityRef,
+    mainsVoltageRef,
     gridState,
     updateCell,
     getPointCalculations,
@@ -45,15 +42,15 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
 
   return (
     <div className="calibration-workspace-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2>Executar Calibração de Equipamento</h2>
-          <p>Insira as leituras coletadas na bancada para calcular os desvios automaticamente.</p>
-        </div>
-        <Button variant="secondary" onClick={onBack}>
-          Cancelar / Voltar
-        </Button>
-      </div>
+      <PageHeader 
+        title="Executar Calibração de Equipamento" 
+        subtitle="Insira as leituras coletadas na bancada para calcular os desvios automaticamente."
+        action={
+          <Button variant="secondary" onClick={onBack}>
+            Cancelar / Voltar
+          </Button>
+        }
+      />
 
       <div className="workspace-main">
         {/* Info do Equipamento */}
@@ -128,8 +125,8 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
                     id="operator"
                     type="text"
                     className="form-input"
-                    value={operator}
-                    onChange={(e) => setOperator(e.target.value)}
+                    ref={operatorRef}
+                    defaultValue={currentUser?.name || ''}
                     placeholder="Nome do técnico"
                     required
                   />
@@ -141,8 +138,8 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
                     type="number"
                     step="0.1"
                     className="form-input"
-                    value={temperature}
-                    onChange={(e) => setTemperature(e.target.value)}
+                    ref={temperatureRef}
+                    defaultValue=""
                     placeholder="23.5"
                     required
                   />
@@ -154,8 +151,8 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
                     type="number"
                     step="0.1"
                     className="form-input"
-                    value={humidity}
-                    onChange={(e) => setHumidity(e.target.value)}
+                    ref={humidityRef}
+                    defaultValue=""
                     placeholder="55"
                     required
                   />
@@ -168,8 +165,8 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
                       type="number"
                       step="0.1"
                       className="form-input"
-                      value={mainsVoltage}
-                      onChange={(e) => setMainsVoltage(e.target.value)}
+                      ref={mainsVoltageRef}
+                      defaultValue=""
                       placeholder="220"
                     />
                   </div>

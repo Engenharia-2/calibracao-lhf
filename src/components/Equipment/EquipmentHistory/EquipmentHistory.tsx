@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { IEquipment } from '../../services/equipments/ApiEquipmentsRepository';
-import { ReadonlyCalibrationGrid, ReadonlySection } from '../../components/Calibration/ReadonlyCalibrationGrid/ReadonlyCalibrationGrid';
-import { Button } from '../../components/ui/Button/Button';
-import { Modal } from '../../components/ui/Modal/Modal';
+import { IEquipment } from '../../../services/equipments/ApiEquipmentsRepository';
+import { ReadonlyCalibrationGrid, ReadonlySection } from '../../Calibration/ReadonlyCalibrationGrid/ReadonlyCalibrationGrid';
+import { Button } from '../../ui/Button/Button';
+import { Modal } from '../../ui/Modal/Modal';
+import { PageHeader } from '../../ui/PageHeader/PageHeader';
 import { PDFDownloadLink } from '@react-pdf/renderer';
-import { CalibrationPDFDocument } from '../../components/Calibration/CalibrationPDFDocument/CalibrationPDFDocument';
+import { CalibrationPDFDocument } from '../../Calibration/CalibrationPDFDocument/CalibrationPDFDocument';
 import './EquipmentHistory.css';
 
 interface EquipmentHistoryProps {
@@ -69,15 +70,19 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
 
   return (
     <div className="equipment-history-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2>Histórico de Calibrações</h2>
-          <p>Confira todos os testes de bancada executados para o equipamento <strong>{equipment.name}</strong>.</p>
-        </div>
-        <Button variant="secondary" onClick={onBack}>
-          Voltar para Lista
-        </Button>
-      </div>
+      <PageHeader 
+        title="Histórico de Calibrações" 
+        subtitle={
+          <span>
+            Confira todos os testes de bancada executados para o equipamento <strong>{equipment.name}</strong>.
+          </span>
+        }
+        action={
+          <Button variant="secondary" onClick={onBack}>
+            Voltar para Lista
+          </Button>
+        }
+      />
 
       <div className="workspace-main">
         {/* Banner do Equipamento */}

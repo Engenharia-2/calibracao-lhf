@@ -4,6 +4,7 @@ import { ClientModal } from '../../components/Client/ClientModal/ClientModal';
 import { ClientTable } from '../../components/Client/ClientTable/ClientTable';
 import { useClients } from '../../hooks/useClients';
 import { Button } from '../../components/ui/Button/Button';
+import { PageHeader } from '../../components/ui/PageHeader/PageHeader';
 
 export function Clients() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,14 +17,14 @@ export function Clients() {
 
   return (
     <div className="clients-page">
-      <div className="page-header" >
-        <div>
-          <h2>Gerenciamento de Clientes</h2>
-        </div>
-        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-          + Cliente
-        </Button>
-      </div>
+      <PageHeader 
+        title="Gerenciamento de Clientes" 
+        action={
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+            + Cliente
+          </Button>
+        } 
+      />
       
       <div className="page-content">
         {isLoading ? (

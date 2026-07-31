@@ -27,17 +27,19 @@
 }
 
 .readonly-meta-banner {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: var(--bg-color);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 16px 24px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   font-size: 14px;
-  color: #495057;
+  color: var(--text-secondary);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal), color var(--transition-normal);
 }
 
 .readonly-meta-banner strong {
-  color: #212529;
+  color: var(--text-primary);
+  transition: color var(--transition-normal);
 }

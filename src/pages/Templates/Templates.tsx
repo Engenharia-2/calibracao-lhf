@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTemplates } from '../../hooks/useTemplates';
 import { TemplateTable } from '../../components/Template/TemplateTable/TemplateTable';
-import { TemplateEditor } from './TemplateEditor';
+import { TemplateEditor } from '../../components/Template/TemplateEditor/TemplateEditor';
 import { Button } from '../../components/ui/Button/Button';
+import { PageHeader } from '../../components/ui/PageHeader/PageHeader';
 import './Templates.css';
 
 export function Templates() {
@@ -37,15 +38,15 @@ export function Templates() {
 
   return (
     <div className="templates-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h2>Modelos de Formulários de Calibração</h2>
-          <p>Configure e gerencie as tabelas, escalas e pontos nominais que guiarão a calibração de cada equipamento.</p>
-        </div>
-        <Button variant="primary" onClick={handleCreateNew}>
-          + Novo Formulário
-        </Button>
-      </div>
+      <PageHeader 
+        title="Modelos de Formulários de Calibração" 
+        subtitle="Configure e gerencie as tabelas, escalas e pontos nominais que guiarão a calibração de cada equipamento."
+        action={
+          <Button variant="primary" onClick={handleCreateNew}>
+            + Novo Formulário
+          </Button>
+        }
+      />
 
       <div className="page-content">
         {isLoading ? (

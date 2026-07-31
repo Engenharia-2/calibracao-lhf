@@ -4,9 +4,12 @@ export interface ITemplateColumn {
 }
 
 export interface ITemplatePoint {
+  id?: string;
   group?: string;
   targetValue: number;
   unit?: string;
+  isLinkedToStandard?: boolean;
+  standardPointKey?: string;
 }
 
 export interface ITemplateSection {

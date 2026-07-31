@@ -41,10 +41,14 @@ function GridInput({ value, onChange }: GridInputProps) {
     }
   };
 
+  const isInvalid = localVal.trim() !== '' && 
+                    localVal.trim() !== '-' && 
+                    isNaN(Number(localVal.trim().replace(',', '.')));
+
   return (
     <input
       type="text"
-      className="grid-input"
+      className={`grid-input ${isInvalid ? 'input-invalid' : ''}`}
       value={localVal}
       onChange={(e) => setLocalVal(e.target.value)}
       onBlur={handleBlur}

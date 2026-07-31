@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { IEquipment } from '../../services/equipments/ApiEquipmentsRepository';
-import { CalibrationWorkspace } from './CalibrationWorkspace';
+import { CalibrationWorkspace } from '../../components/Calibration/CalibrationWorkspace/CalibrationWorkspace';
 import { UserData } from '../../App';
+import { PageHeader } from '../../components/ui/PageHeader/PageHeader';
 import './Calibration.css';
 
 interface CalibrationProps {
@@ -63,12 +64,10 @@ export function Calibration({ currentUser, preselectedEquipment, onClearPreselec
 
   return (
     <div className="calibration-select-page">
-      <div className="page-header">
-        <div>
-          <h2>Execução de Calibrações</h2>
-          <p>Selecione um equipamento cadastrado abaixo para iniciar o formulário de bancada.</p>
-        </div>
-      </div>
+      <PageHeader 
+        title="Execução de Calibrações" 
+        subtitle="Selecione um equipamento cadastrado abaixo para iniciar o formulário de bancada."
+      />
 
       <div className="workspace-main">
         <div className="workspace-card select-equipment-card">

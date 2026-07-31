@@ -7,6 +7,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   fullWidth?: boolean;
   icon?: React.ReactNode;
   children?: React.ReactNode;
+  loading?: boolean;
 }
 
 export function Button({
@@ -17,6 +18,7 @@ export function Button({
   children,
   className = '',
   disabled,
+  loading = false,
   ...props
 }: ButtonProps) {
   const classNames = [
@@ -24,11 +26,12 @@ export function Button({
     `custom-btn-${variant}`,
     `custom-btn-${size}`,
     fullWidth ? 'custom-btn-full' : '',
+    loading ? 'custom-btn--loading' : '',
     className
   ].filter(Boolean).join(' ');
 
   return (
-    <button className={classNames} disabled={disabled} {...props}>
+    <button className={classNames} disabled={disabled || loading} {...props}>
       {icon && <span className="custom-btn-icon">{icon}</span>}
       {children && <span className="custom-btn-content">{children}</span>}
     </button>

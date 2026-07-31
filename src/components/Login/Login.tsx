@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './Login.css';
 
 interface LoginProps {
@@ -7,13 +7,16 @@ interface LoginProps {
 }
 
 export function Login({ onSuccess, onGoToRegister }: LoginProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const email = emailRef.current?.value || '';
+    const password = passwordRef.current?.value || '';
+
     if (!email || !password) {
       setError('Por favor, preencha todos os campos.');
       return;
@@ -54,8 +57,7 @@ export function Login({ onSuccess, onGoToRegister }: LoginProps) {
               id="email"
               type="text"
               className="form-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              ref={emailRef}
               placeholder="Digite seu e-mail"
               disabled={isLoading}
               autoComplete="email"
@@ -68,8 +70,7 @@ export function Login({ onSuccess, onGoToRegister }: LoginProps) {
               id="password"
               type="password"
               className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              ref={passwordRef}
               placeholder="Digite sua senha"
               disabled={isLoading}
               autoComplete="current-password"

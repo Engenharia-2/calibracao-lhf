@@ -9,7 +9,7 @@
 
 .login-card {
   background-color: var(--surface-color);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
   border-top: 4px solid var(--color-marine-blue);
@@ -63,7 +63,7 @@
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background-color: var(--bg-color);
   color: var(--text-primary);
   font-size: 1rem;
@@ -84,7 +84,7 @@
   background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -117,7 +117,7 @@
   padding: 0.75rem;
   /* rgb(242, 70, 7) is #F24607 (orange) */
   background-color: rgba(242, 70, 7, 0.1);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   animation: shake 0.5s var(--transition-normal);
 }
 

@@ -1,4 +1,5 @@
 export interface IStandardPoint {
+  id?: string;
   sectionName: string;
   nominalValue: number;
   unit: string;

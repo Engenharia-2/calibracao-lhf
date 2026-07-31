@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { IEquipment } from '../services/equipments/ApiEquipmentsRepository';
 import { ICalibrationTemplate, ITemplateSection } from '../services/templates/ApiTemplatesRepository';
 import { IReferenceStandard, IStandardPoint } from '../services/standards/ApiStandardsRepository';
@@ -37,11 +37,11 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
   const [selectedStandardId, setSelectedStandardId] = useState<number | string>('');
   const [selectedStandard, setSelectedStandard] = useState<IReferenceStandard | null>(null);
 
-  // Dados ambientais: pré-preenche o operador com o nome do usuário logado
-  const [operator, setOperator] = useState(currentUser?.name || '');
-  const [temperature, setTemperature] = useState('');
-  const [humidity, setHumidity] = useState('');
-  const [mainsVoltage, setMainsVoltage] = useState('');
+  // Dados ambientais usando refs
+  const operatorRef = useRef<HTMLInputElement>(null);
+  const temperatureRef = useRef<HTMLInputElement>(null);
+  const humidityRef = useRef<HTMLInputElement>(null);
+  const mainsVoltageRef = useRef<HTMLInputElement>(null);
   const [startedAt, setStartedAt] = useState<string | null>(null);
 
   // Clientes
@@ -50,8 +50,8 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
 
   // Sincroniza o operador se o usuário estiver disponível
   useEffect(() => {
-    if (currentUser?.name && !operator) {
-      setOperator(currentUser.name);
+    if (currentUser?.name && operatorRef.current && !operatorRef.current.value) {
+      operatorRef.current.value = currentUser.name;
     }
   }, [currentUser]);
 
@@ -354,6 +354,11 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
     e.preventDefault();
     setError(null);
 
+    const operator = operatorRef.current?.value || '';
+    const temperature = temperatureRef.current?.value || '';
+    const humidity = humidityRef.current?.value || '';
+    const mainsVoltage = mainsVoltageRef.current?.value || '';
+
     if (!selectedTemplateId || !operator || !temperature || !humidity) {
       setError('Por favor, preencha o Operador e as Condições Ambientais.');
       return;
@@ -431,14 +436,10 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
     handleStandardChange,
     selectedStandard,
     templateDetail,
-    operator,
-    setOperator,
-    temperature,
-    setTemperature,
-    humidity,
-    setHumidity,
-    mainsVoltage,
-    setMainsVoltage,
+    operatorRef,
+    temperatureRef,
+    humidityRef,
+    mainsVoltageRef,
     gridState,
     updateCell,
     getPointCalculations,

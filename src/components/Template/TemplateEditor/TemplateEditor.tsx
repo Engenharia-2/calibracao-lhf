@@ -1,6 +1,9 @@
-import { useTemplateForm } from '../../hooks/useTemplateForm';
-import { SectionBuilder } from '../../components/Template/SectionBuilder/SectionBuilder';
-import { Button } from '../../components/ui/Button/Button';
+import { useEffect, useRef } from 'react';
+import { useTemplateForm } from '../../../hooks/useTemplateForm';
+import { SectionBuilder } from '../SectionBuilder/SectionBuilder';
+import { Button } from '../../ui/Button/Button';
+import { PageHeader } from '../../ui/PageHeader/PageHeader';
+import { StandardPointsModal } from '../StandardPointsModal/StandardPointsModal';
 import './TemplateEditor.css';
 
 interface TemplateEditorProps {
@@ -10,14 +13,11 @@ interface TemplateEditorProps {
 
 export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
   const {
-    templateId,
-    setTemplateId,
-    name,
-    setName,
+    templateIdRef,
+    nameRef,
+    toleranceRef,
     equipmentType,
     setEquipmentType,
-    tolerance,
-    setTolerance,
     defaultStandardId,
     handleStandardSelect,
     reloadSectionsFromStandard,
@@ -32,20 +32,34 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
     addPointToSection,
     removePointFromSection,
     updatePointInSection,
-    handleSubmit
+    handleSubmit,
+    // Novos retornos do hook
+    isImportModalOpen,
+    setIsImportModalOpen,
+    pendingStandard,
+    importSelectedPoints
   } = useTemplateForm({ id, onSuccess: onBack });
+
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+  console.log(`[TemplateEditor.tsx] RENDER #${renderCount.current} - props: { id: "${id || 'undefined'}" } - states: { equipmentType: "${equipmentType}", sectionsCount: ${sections.length}, isImportModalOpen: ${isImportModalOpen}, isLoading: ${isLoading} }`);
+
+  useEffect(() => {
+    console.log("[TemplateEditor.tsx] COMPONENT MOUNTED");
+    return () => console.log("[TemplateEditor.tsx] COMPONENT UNMOUNTED");
+  }, []);
 
   return (
     <div className="template-editor-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2>{isEditMode ? `Editar Formulário: ${id}` : 'Novo Formulário Dinâmico'}</h2>
-          <p>Preencha as configurações básicas e monte as seções de calibração abaixo.</p>
-        </div>
-        <Button type="button" variant="secondary" onClick={onBack}>
-          Voltar
-        </Button>
-      </div>
+      <PageHeader 
+        title={isEditMode ? `Editar Formulário: ${id}` : 'Novo Formulário Dinâmico'}
+        subtitle="Preencha as configurações básicas e monte as seções de calibração abaixo."
+        action={
+          <Button type="button" variant="secondary" onClick={onBack}>
+            Voltar
+          </Button>
+        }
+      />
 
       <form onSubmit={handleSubmit} className="template-editor-form">
         <div className="editor-card basic-info">
@@ -58,8 +72,8 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
                 id="templateId"
                 type="text"
                 className="form-input"
-                value={templateId}
-                onChange={(e) => setTemplateId(e.target.value)}
+                ref={templateIdRef}
+                defaultValue=""
                 placeholder="Ex: FC-001, FC-007"
                 disabled={isEditMode || isLoading}
                 required
@@ -71,8 +85,8 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
                 id="name"
                 type="text"
                 className="form-input"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                ref={nameRef}
+                defaultValue=""
                 placeholder="Ex: Surge Test 4kV LHF"
                 disabled={isLoading}
                 required
@@ -102,8 +116,8 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
                 type="number"
                 step="0.01"
                 className="form-input"
-                value={tolerance}
-                onChange={(e) => setTolerance(Number(e.target.value))}
+                ref={toleranceRef}
+                defaultValue="5.0"
                 placeholder="Ex: 5"
                 disabled={isLoading}
                 required
@@ -137,7 +151,7 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
             <div style={{ display: 'flex', gap: '8px' }}>
               {defaultStandardId && (
                 <Button type="button" variant="outline" onClick={reloadSectionsFromStandard} disabled={isLoading}>
-                  Recarregar Seções do Padrão
+                  Sincronizar Valores com Padrão
                 </Button>
               )}
               <Button type="button" variant="primary" onClick={addSection} disabled={isLoading}>
@@ -171,6 +185,13 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
           </Button>
         </div>
       </form>
+
+      <StandardPointsModal
+        isOpen={isImportModalOpen}
+        standard={pendingStandard}
+        onClose={() => setIsImportModalOpen(false)}
+        onConfirm={importSelectedPoints}
+      />
     </div>
   );
 }

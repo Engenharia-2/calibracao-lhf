@@ -6,6 +6,9 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: true, // Permite acesso à aplicação na rede local
+  },
   plugins: [
     react({}),
     babel({ presets: [reactCompilerPreset()] }),

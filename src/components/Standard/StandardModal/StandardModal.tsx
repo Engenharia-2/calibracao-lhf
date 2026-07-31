@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Modal } from '../../components/ui/Modal/Modal';
-import { Button } from '../../components/ui/Button/Button';
-import { IReferenceStandard, IStandardPoint } from '../../services/standards/ApiStandardsRepository';
-import { UnitSelect } from '../../components/ui/UnitSelect/UnitSelect';
-import './Standards.css';
+import { useState, useRef } from 'react';
+import { Modal } from '../../ui/Modal/Modal';
+import { Button } from '../../ui/Button/Button';
+import { IReferenceStandard, IStandardPoint } from '../../../services/standards/ApiStandardsRepository';
+import { UnitSelect } from '../../ui/UnitSelect/UnitSelect';
+import './StandardModal.css';
 
 interface StandardModalProps {
   isOpen: boolean;
@@ -11,6 +11,10 @@ interface StandardModalProps {
   onClose: () => void;
   onSuccess: () => void;
 }
+
+const generateUniqueId = () => {
+  return 'pt-' + Math.random().toString(36).substring(2, 11) + '-' + Date.now().toString(36);
+};
 
 const defaultPoint: IStandardPoint = {
   sectionName: 'Resistência (1 kV)',
@@ -23,46 +27,31 @@ const defaultPoint: IStandardPoint = {
 };
 
 export function StandardModal({ isOpen, standard, onClose, onSuccess }: StandardModalProps) {
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-  const [certificateNumber, setCertificateNumber] = useState('');
-  const [validityDate, setValidityDate] = useState('');
-  const [points, setPoints] = useState<IStandardPoint[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const codeRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+  const certificateNumberRef = useRef<HTMLInputElement>(null);
+  const validityDateRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const [points, setPoints] = useState<IStandardPoint[]>(() => {
     if (standard) {
-      setCode(standard.code || '');
-      setName(standard.name || '');
-      setCertificateNumber(standard.certificate_number || '');
-      
-      if (standard.validity_date) {
-        const d = new Date(standard.validity_date);
-        const dateStr = d.toISOString().split('T')[0];
-        setValidityDate(dateStr);
-      } else {
-        setValidityDate('');
-      }
-
       let parsedPoints: IStandardPoint[] = [];
       if (typeof standard.points === 'string') {
         try { parsedPoints = JSON.parse(standard.points); } catch(e) {}
       } else if (Array.isArray(standard.points)) {
         parsedPoints = standard.points;
       }
-      setPoints(parsedPoints.length ? parsedPoints : [ { ...defaultPoint } ]);
-    } else {
-      setCode('');
-      setName('');
-      setCertificateNumber('');
-      setValidityDate('');
-      setPoints([ { ...defaultPoint } ]);
+      return parsedPoints.map(pt => ({
+        ...pt,
+        id: pt.id || generateUniqueId()
+      }));
     }
-  }, [standard, isOpen]);
+    return [ { ...defaultPoint, id: generateUniqueId() } ];
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAddPoint = () => {
-    setPoints(prev => [...prev, { ...defaultPoint }]);
+    setPoints(prev => [...prev, { ...defaultPoint, id: generateUniqueId() }]);
   };
 
   const handleRemovePoint = (index: number) => {
@@ -79,6 +68,11 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const code = codeRef.current?.value || '';
+    const name = nameRef.current?.value || '';
+    const certificateNumber = certificateNumberRef.current?.value || '';
+    const validityDate = validityDateRef.current?.value || '';
+
     if (!code || !name || !certificateNumber || !validityDate) {
       setError('Por favor, preencha todos os campos do padrão.');
       return;
@@ -120,8 +114,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
               id="code"
               type="text"
               className="form-input"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
+              ref={codeRef}
+              defaultValue={standard?.code || ''}
               placeholder="Ex: PA-EC-03993"
               disabled={isLoading}
               required
@@ -133,8 +127,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
               id="name"
               type="text"
               className="form-input"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              ref={nameRef}
+              defaultValue={standard?.name || ''}
               placeholder="Ex: Módulo de Resistência Padrão LHF - MRP - 01"
               disabled={isLoading}
               required
@@ -149,8 +143,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
               id="cert"
               type="text"
               className="form-input"
-              value={certificateNumber}
-              onChange={(e) => setCertificateNumber(e.target.value)}
+              ref={certificateNumberRef}
+              defaultValue={standard?.certificate_number || ''}
               placeholder="Ex: CCR 662/25"
               disabled={isLoading}
               required
@@ -162,8 +156,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
               id="validity"
               type="date"
               className="form-input"
-              value={validityDate}
-              onChange={(e) => setValidityDate(e.target.value)}
+              ref={validityDateRef}
+              defaultValue={standard?.validity_date ? new Date(standard.validity_date).toISOString().split('T')[0] : ''}
               disabled={isLoading}
               required
             />
@@ -194,13 +188,13 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
               </thead>
               <tbody>
                 {points.map((p, idx) => (
-                  <tr key={idx}>
+                  <tr key={p.id || idx}>
                     <td>
                       <input
                         type="text"
                         className="form-input table-input"
-                        value={p.sectionName}
-                        onChange={(e) => handlePointChange(idx, 'sectionName', e.target.value)}
+                        defaultValue={p.sectionName}
+                        onBlur={(e) => handlePointChange(idx, 'sectionName', e.target.value)}
                         placeholder="Ex: Resistência (1 kV)"
                       />
                     </td>
@@ -209,8 +203,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
                         type="number"
                         step="any"
                         className="form-input table-input"
-                        value={p.nominalValue}
-                        onChange={(e) => handlePointChange(idx, 'nominalValue', Number(e.target.value))}
+                        defaultValue={p.nominalValue}
+                        onBlur={(e) => handlePointChange(idx, 'nominalValue', Number(e.target.value))}
                       />
                     </td>
                     <td>
@@ -225,8 +219,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
                         type="number"
                         step="any"
                         className="form-input table-input"
-                        value={p.referenceValue}
-                        onChange={(e) => handlePointChange(idx, 'referenceValue', Number(e.target.value))}
+                        defaultValue={p.referenceValue}
+                        onBlur={(e) => handlePointChange(idx, 'referenceValue', Number(e.target.value))}
                       />
                     </td>
                     <td>
@@ -234,8 +228,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
                         type="number"
                         step="any"
                         className="form-input table-input"
-                        value={p.uncertaintyExpanded}
-                        onChange={(e) => handlePointChange(idx, 'uncertaintyExpanded', Number(e.target.value))}
+                        defaultValue={p.uncertaintyExpanded}
+                        onBlur={(e) => handlePointChange(idx, 'uncertaintyExpanded', Number(e.target.value))}
                       />
                     </td>
                     <td>
@@ -243,8 +237,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
                         type="number"
                         step="any"
                         className="form-input table-input"
-                        value={p.kFactor}
-                        onChange={(e) => handlePointChange(idx, 'kFactor', Number(e.target.value))}
+                        defaultValue={p.kFactor}
+                        onBlur={(e) => handlePointChange(idx, 'kFactor', Number(e.target.value))}
                       />
                     </td>
                     <td>
@@ -252,8 +246,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
                         type="number"
                         step="any"
                         className="form-input table-input"
-                        value={p.resolution}
-                        onChange={(e) => handlePointChange(idx, 'resolution', Number(e.target.value))}
+                        defaultValue={p.resolution}
+                        onBlur={(e) => handlePointChange(idx, 'resolution', Number(e.target.value))}
                       />
                     </td>
                     <td>

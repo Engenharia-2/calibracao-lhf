@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { IReferenceStandard } from '../../services/standards/ApiStandardsRepository';
-import { StandardModal } from './StandardModal';
+import { StandardModal } from '../../components/Standard/StandardModal/StandardModal';
 import { Button } from '../../components/ui/Button/Button';
+import { PageHeader } from '../../components/ui/PageHeader/PageHeader';
 import './Standards.css';
 
 export function Standards() {
@@ -64,15 +65,15 @@ export function Standards() {
 
   return (
     <div className="standards-page">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <h2>Padrões de Referência RBC</h2>
-          <p>Cadastre e gerencie os equipamentos padrões de calibração externa com seus respectivos certificados e incertezas.</p>
-        </div>
-        <Button variant="primary" onClick={handleCreateNew}>
-          + Novo Padrão
-        </Button>
-      </div>
+      <PageHeader 
+        title="Padrões de Referência RBC" 
+        subtitle="Cadastre e gerencie os equipamentos padrões de calibração externa com seus respectivos certificados e incertezas."
+        action={
+          <Button variant="primary" onClick={handleCreateNew}>
+            + Novo Padrão
+          </Button>
+        }
+      />
 
       <div className="page-content">
         {isLoading ? (

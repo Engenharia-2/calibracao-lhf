@@ -2,10 +2,11 @@ import { useState } from 'react';
 import './Equipments.css';
 import { EquipmentModal } from '../../components/Equipment/EquipmentModal/EquipmentModal';
 import { EquipmentTable } from '../../components/Equipment/EquipmentTable/EquipmentTable';
-import { EquipmentHistory } from './EquipmentHistory';
+import { EquipmentHistory } from '../../components/Equipment/EquipmentHistory/EquipmentHistory';
 import { useEquipments } from '../../hooks/useEquipments';
 import { IEquipment } from '../../services/equipments/ApiEquipmentsRepository';
 import { Button } from '../../components/ui/Button/Button';
+import { PageHeader } from '../../components/ui/PageHeader/PageHeader';
 
 interface EquipmentsProps {
   onCalibrate: (eq: IEquipment) => void;
@@ -32,14 +33,14 @@ export function Equipments({ onCalibrate }: EquipmentsProps) {
 
   return (
     <div className="equipments-page">
-      <div className="page-header">
-        <div>
-          <h2>Gerenciamento de Equipamentos</h2>
-        </div>
-        <Button variant="primary" onClick={() => setIsModalOpen(true)}>
-          + Equipamento
-        </Button>
-      </div>
+      <PageHeader 
+        title="Gerenciamento de Equipamentos" 
+        action={
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
+            + Equipamento
+          </Button>
+        } 
+      />
       
       <div className="page-content">
         {isLoading ? (
