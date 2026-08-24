@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { 
   ChevronLeft, 
   Menu, 
-  Users, 
-  ServerPlus, 
+  Users,  
   ZodiacLibra, 
   FileText, 
-  SquareChartGantt 
+  SquareChartGantt,
+  LayoutDashboard,
+  Toolbox
 } from 'lucide-react';
 import './Sidebar.css';
 import logoLhf from '../../../assets/logo-lhf.png';
@@ -24,11 +25,12 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
   };
 
   const navItems = [
-    { id: 'clientes', label: 'Clientes', icon: Users },
-    { id: 'equipamentos', label: 'Equipamentos', icon: ServerPlus },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'calibracao', label: 'Calibração', icon: ZodiacLibra },
     { id: 'formularios', label: 'Formulários', icon: FileText },
     { id: 'padroes', label: 'Padrões', icon: SquareChartGantt },
+    { id: 'clientes', label: 'Clientes', icon: Users },
+    { id: 'equipamentos', label: 'Equipamentos', icon: Toolbox },
   ];
 
   return (

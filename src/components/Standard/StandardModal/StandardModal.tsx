@@ -31,6 +31,7 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
   const nameRef = useRef<HTMLInputElement>(null);
   const certificateNumberRef = useRef<HTMLInputElement>(null);
   const validityDateRef = useRef<HTMLInputElement>(null);
+  const certificateUrlRef = useRef<HTMLInputElement>(null);
 
   const [points, setPoints] = useState<IStandardPoint[]>(() => {
     if (standard) {
@@ -72,6 +73,7 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
     const name = nameRef.current?.value || '';
     const certificateNumber = certificateNumberRef.current?.value || '';
     const validityDate = validityDateRef.current?.value || '';
+    const certificateUrl = certificateUrlRef.current?.value || '';
 
     if (!code || !name || !certificateNumber || !validityDate) {
       setError('Por favor, preencha todos os campos do padrão.');
@@ -86,7 +88,8 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
       name,
       certificate_number: certificateNumber,
       validity_date: validityDate,
-      points
+      points,
+      certificate_url: certificateUrl || undefined
     };
 
     try {
@@ -164,6 +167,21 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
           </div>
         </div>
 
+        <div className="form-group-row">
+          <div className="form-group">
+            <label htmlFor="certUrl">Link do Certificado de Calibração (URL)</label>
+            <input
+              id="certUrl"
+              type="url"
+              className="form-input"
+              ref={certificateUrlRef}
+              defaultValue={standard?.certificate_url || ''}
+              placeholder="Ex: https://drive.google.com/drive/folders/..."
+              disabled={isLoading}
+            />
+          </div>
+        </div>
+
         <div className="standard-points-editor" style={{ marginTop: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <h4 style={{ margin: 0 }}>Tabela de Pontos de Referência RBC</h4>
@@ -180,7 +198,7 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
                   <th>Nominal</th>
                   <th>Unidade</th>
                   <th>Ref. Padrão (VR)</th>
-                  <th>Incerteza U (Ext)</th>
+                  <th>Incerteza U</th>
                   <th>k</th>
                   <th>Resolução</th>
                   <th>Ação</th>

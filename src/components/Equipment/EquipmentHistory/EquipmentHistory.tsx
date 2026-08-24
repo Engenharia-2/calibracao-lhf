@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { IEquipment } from '../../../services/equipments/ApiEquipmentsRepository';
 import { ReadonlyCalibrationGrid, ReadonlySection } from '../../Calibration/ReadonlyCalibrationGrid/ReadonlyCalibrationGrid';
 import { Button } from '../../ui/Button/Button';
@@ -6,6 +6,7 @@ import { Modal } from '../../ui/Modal/Modal';
 import { PageHeader } from '../../ui/PageHeader/PageHeader';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { CalibrationPDFDocument } from '../../Calibration/CalibrationPDFDocument/CalibrationPDFDocument';
+import { EquipmentInfo } from '../EquipmentInfo/EquipmentInfo';
 import './EquipmentHistory.css';
 
 interface EquipmentHistoryProps {
@@ -13,9 +14,18 @@ interface EquipmentHistoryProps {
   onBack: () => void;
 }
 
-interface CalibrationRecord {
+import { useEquipmentHistory } from '../../../hooks/useEquipmentHistory';
+import { useEditCalibrationHeader } from '../../../hooks/useEditCalibrationHeader';
+
+export interface CalibrationRecord {
   id: number;
   equipment_id: number;
+  client_id?: number | null;
+  client_company?: string | null;
+  client_cnpj?: string | null;
+  client_email?: string | null;
+  client_adress?: string | null;
+  client_city?: string | null;
   template_id: string;
   template_name: string;
   operator: string;
@@ -26,35 +36,33 @@ interface CalibrationRecord {
   overall_status: 'Aprovado' | 'Reprovado';
   started_at: string | null;
   created_at: string;
+  standard_code?: string | null;
+  standard_name?: string | null;
+  standard_certificate?: string | null;
+  standard_certificate_url?: string | null;
 }
 
 export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
-  const [history, setHistory] = useState<CalibrationRecord[]>([]);
   const [selectedRecord, setSelectedRecord] = useState<CalibrationRecord | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadHistory = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        if (typeof window.electron?.getCalibrationHistory === 'function') {
-          const list = await window.electron.getCalibrationHistory(equipment.id!);
-          setHistory(list);
-        } else {
-          throw new Error('Electron getCalibrationHistory interface not available');
-        }
-      } catch (err: any) {
-        console.error(err);
-        setError('Não foi possível carregar o histórico de calibrações.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Hook de busca e atualizacao do historico
+  const { history, isLoading, error, refreshHistory } = useEquipmentHistory(equipment.id);
 
-    loadHistory();
-  }, [equipment]);
+  // Hook de edicao de metadados da calibracao
+  const {
+    clients,
+    isEditing,
+    setIsEditing,
+    editClientId,
+    setEditClientId,
+    editCreatedAt,
+    setEditCreatedAt,
+    handleSaveHeader
+  } = useEditCalibrationHeader({
+    selectedRecord,
+    setSelectedRecord,
+    refreshHistory
+  });
 
   const getDuration = (startedAt: string | null, createdAt: string) => {
     if (!startedAt) return 'Não registrado';
@@ -71,29 +79,22 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
   return (
     <div className="equipment-history-page">
       <PageHeader 
-        title="Histórico de Calibrações" 
-        subtitle={
-          <span>
-            Confira todos os testes de bancada executados para o equipamento <strong>{equipment.name}</strong>.
-          </span>
-        }
         action={
           <Button variant="secondary" onClick={onBack}>
             Voltar para Lista
           </Button>
         }
       />
+      <div className="internal-page-header">
+        <h2>Histórico de Calibrações</h2>
+        <p>
+          Confira todos os testes de bancada executados para o equipamento <strong>{equipment.name}</strong>.
+        </p>
+      </div>
 
       <div className="workspace-main">
         {/* Banner do Equipamento */}
-        <div className="workspace-card equipment-details-banner">
-          <h3>Dados do Equipamento</h3>
-          <div className="details-grid">
-            <div><strong>Nome:</strong> {equipment.name}</div>
-            <div><strong>Número de Série (NS):</strong> {equipment.ns}</div>
-            <div><strong>Ordem de Produção (OP):</strong> {equipment.op}</div>
-          </div>
-        </div>
+        <EquipmentInfo equipment={equipment} />
 
         {/* Lista de Registros */}
         <div className="workspace-card">
@@ -150,9 +151,14 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
                               equipmentName={equipment.name}
                               equipmentNs={equipment.ns}
                               equipmentOp={equipment.op}
+                              equipmentType={equipment.equipment_type || '-'}
+                              equipmentRange={equipment.measurement_range || '-'}
                             />
                           }
-                          fileName={`Certificado-${rec.id}.pdf`}
+                          fileName={`Certificado-${(() => {
+                            const [day, month, year] = new Date(rec.created_at).toLocaleDateString('pt-BR').split('/');
+                            return `${year.slice(-2)}${month}${day}`;
+                          })()}${equipment.op}.pdf`}
                           style={{ textDecoration: 'none' }}
                         >
                           {({ loading }) => (
@@ -181,22 +187,67 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
         {selectedRecord && (
           <>
             {/* Infos Clima e Condições do dia */}
-            <div className="readonly-meta-banner">
-              <div><strong>Operador:</strong> {selectedRecord.operator}</div>
-              <div><strong>Data:</strong> {new Date(selectedRecord.created_at).toLocaleString('pt-BR')}</div>
-              <div><strong>Duração:</strong> {getDuration(selectedRecord.started_at, selectedRecord.created_at)}</div>
-              <div><strong>Temperatura:</strong> {selectedRecord.temperature} °C</div>
-              <div><strong>Umidade:</strong> {selectedRecord.humidity} %</div>
-              {selectedRecord.mains_voltage && (
-                <div><strong>Rede VCA:</strong> {selectedRecord.mains_voltage} V</div>
-              )}
-              <div>
-                <strong>Status Geral:</strong>{' '}
-                <span className={`status-badge ${selectedRecord.overall_status.toLowerCase()}`}>
-                  {selectedRecord.overall_status}
-                </span>
+            {isEditing ? (
+              <div className="readonly-meta-banner editing-banner">
+                <div className="editing-banner-fields">
+                  <div className="editing-banner-group">
+                    <label className="editing-banner-label">Cliente:</label>
+                    <select
+                      value={editClientId || ''}
+                      onChange={(e) => setEditClientId(e.target.value ? Number(e.target.value) : null)}
+                      className="editing-banner-input"
+                    >
+                      <option value="">LHF (Uso Interno)</option>
+                      {clients.map((cli) => (
+                        <option key={cli.id} value={cli.id}>
+                          {cli.company} ({cli.cnpj})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="editing-banner-group">
+                    <label className="editing-banner-label">Data de Execução:</label>
+                    <input
+                      type="datetime-local"
+                      value={editCreatedAt}
+                      onChange={(e) => setEditCreatedAt(e.target.value)}
+                      className="editing-banner-input"
+                    />
+                  </div>
+                </div>
+                <div className="editing-banner-actions">
+                  <Button size="sm" variant="primary" onClick={handleSaveHeader}>
+                    Salvar
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => setIsEditing(false)}>
+                    Cancelar
+                  </Button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="readonly-meta-banner">
+                <div><strong>Operador:</strong> {selectedRecord.operator}</div>
+                <div><strong>Cliente:</strong> {selectedRecord.client_company || 'LHF (Uso Interno)'}</div>
+                <div><strong>Data:</strong> {new Date(selectedRecord.created_at).toLocaleString('pt-BR')}</div>
+                <div><strong>Duração:</strong> {getDuration(selectedRecord.started_at, selectedRecord.created_at)}</div>
+                <div><strong>Temperatura:</strong> {selectedRecord.temperature} °C</div>
+                <div><strong>Umidade:</strong> {selectedRecord.humidity} %</div>
+                {selectedRecord.mains_voltage && (
+                  <div><strong>Rede VCA:</strong> {selectedRecord.mains_voltage} V</div>
+                )}
+                <div>
+                  <strong>Status Geral:</strong>{' '}
+                  <span className={`status-badge ${selectedRecord.overall_status.toLowerCase()}`}>
+                    {selectedRecord.overall_status}
+                  </span>
+                </div>
+                <div className="readonly-meta-actions">
+                  <Button size="sm" variant="secondary" onClick={() => setIsEditing(true)}>
+                    Editar Cliente/Data
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Tabelas de Leitura */}
             <div className="grids-container" style={{ marginTop: '20px' }}>

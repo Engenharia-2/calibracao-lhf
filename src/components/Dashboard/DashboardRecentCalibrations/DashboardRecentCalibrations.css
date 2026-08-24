@@ -1,0 +1,102 @@
+/* DashboardRecentCalibrations.css */
+
+.recent-calibrations-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  flex-grow: 1;
+}
+
+.recent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.recent-table th, 
+.recent-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.recent-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.recent-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.date-cell {
+  white-space: nowrap;
+  color: var(--text-secondary);
+}
+
+.eq-cell-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.eq-cell-subtitle {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.status-badge.status-ok {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.status-badge.status-fail {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.btn-download-recent {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-download-recent:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-download-recent:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.no-table-data {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}

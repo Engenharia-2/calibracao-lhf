@@ -18,9 +18,7 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
     toleranceRef,
     equipmentType,
     setEquipmentType,
-    defaultStandardId,
-    handleStandardSelect,
-    reloadSectionsFromStandard,
+
     standards,
     sections,
     isLoading,
@@ -33,6 +31,8 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
     removePointFromSection,
     updatePointInSection,
     handleSubmit,
+    handleStandardSelect,
+    syncSectionWithStandard,
     // Novos retornos do hook
     isImportModalOpen,
     setIsImportModalOpen,
@@ -52,14 +52,16 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
   return (
     <div className="template-editor-page">
       <PageHeader 
-        title={isEditMode ? `Editar Formulário: ${id}` : 'Novo Formulário Dinâmico'}
-        subtitle="Preencha as configurações básicas e monte as seções de calibração abaixo."
         action={
           <Button type="button" variant="secondary" onClick={onBack}>
             Voltar
           </Button>
         }
       />
+      <div className="internal-page-header">
+        <h2>{isEditMode ? `Editar Formulário: ${id}` : 'Novo Formulário Dinâmico'}</h2>
+        <p>Preencha as configurações básicas e monte as seções de calibração abaixo.</p>
+      </div>
 
       <form onSubmit={handleSubmit} className="template-editor-form">
         <div className="editor-card basic-info">
@@ -123,23 +125,7 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
                 required
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="defaultStandard">Padrão de Referência RBC Padrão</label>
-              <select
-                id="defaultStandard"
-                className="form-input"
-                value={defaultStandardId}
-                onChange={(e) => handleStandardSelect(e.target.value)}
-                disabled={isLoading}
-              >
-                <option value="">-- Nenhum Padrão Vinculado --</option>
-                {standards.map(std => (
-                  <option key={std.id} value={std.id}>
-                    [{std.code}] {std.name} ({std.certificate_number})
-                  </option>
-                ))}
-              </select>
-            </div>
+
           </div>
         </div>
 
@@ -148,12 +134,7 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
             <div>
               <h3>Estrutura das Seções de Teste</h3>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {defaultStandardId && (
-                <Button type="button" variant="outline" onClick={reloadSectionsFromStandard} disabled={isLoading}>
-                  Sincronizar Valores com Padrão
-                </Button>
-              )}
+            <div>
               <Button type="button" variant="primary" onClick={addSection} disabled={isLoading}>
                 + Adicionar Seção
               </Button>
@@ -165,11 +146,14 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
               key={sIdx}
               section={section}
               sectionIndex={sIdx}
+              standards={standards}
               onUpdate={(fields) => updateSection(sIdx, fields)}
               onRemove={() => removeSection(sIdx)}
               onAddPoint={() => addPointToSection(sIdx)}
               onRemovePoint={(pIdx) => removePointFromSection(sIdx, pIdx)}
               onUpdatePoint={(pIdx, fields) => updatePointInSection(sIdx, pIdx, fields)}
+              onStandardSelect={(idVal) => handleStandardSelect(idVal, sIdx)}
+              onSyncStandard={() => syncSectionWithStandard(sIdx)}
             />
           ))}
         </div>

@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Image, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Image, Font, Link } from '@react-pdf/renderer';
 import { LHF_LOGO_BASE64 } from '../../../utils/logoBase64';
 import { ROBOTO_REGULAR_BASE64, ROBOTO_BOLD_BASE64 } from '../../../utils/robotoBase64';
 
@@ -24,6 +24,12 @@ interface PDFPoint {
 
 interface PDFSection {
   sectionName: string;
+  standard?: {
+    id: number | string;
+    code: string;
+    name: string;
+    certificate_number: string;
+  } | null;
   points: PDFPoint[];
 }
 
@@ -43,9 +49,15 @@ interface PDFRecord {
   client_company?: string | null;
   client_cnpj?: string | null;
   client_email?: string | null;
+  client_adress?: string | null;
+  client_city?: string | null;
   standard_code?: string | null;
   standard_name?: string | null;
   standard_certificate?: string | null;
+  standard_certificate_url?: string | null;
+  operator_signature_url?: string | null;
+  applyStandardCorrection?: number | boolean | null;
+  apply_standard_correction?: number | boolean | null;
 }
 
 interface CalibrationPDFDocumentProps {
@@ -53,6 +65,8 @@ interface CalibrationPDFDocumentProps {
   equipmentName: string;
   equipmentNs: string;
   equipmentOp: string;
+  equipmentType: string;
+  equipmentRange: string;
 }
 
 const styles = StyleSheet.create({
@@ -209,6 +223,7 @@ const styles = StyleSheet.create({
     borderTopColor: '#999999',
     width: '100%',
     marginBottom: 4,
+    marginTop: 10,
   },
   signatureText: {
     fontSize: 8,
@@ -216,43 +231,41 @@ const styles = StyleSheet.create({
   }
 });
 
-export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equipmentOp }: CalibrationPDFDocumentProps) {
-  // Encontra a faixa de medição (mínimo e máximo dos alvos das leituras)
-  let minVal = Infinity;
-  let maxVal = -Infinity;
-  let unit = 'Ω';
+export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equipmentOp, equipmentType, equipmentRange }: CalibrationPDFDocumentProps) {
+  const rangeStr = equipmentRange || 'N/A';
+  const formattedDate = new Date(record.created_at).toLocaleDateString('pt-BR');
+  const issuedDate = new Date().toLocaleDateString('pt-BR');
+  const dateObj = new Date(record.created_at);
+  const [day, month, year] = dateObj.toLocaleDateString('pt-BR').split('/');
+  const yearYY = year.slice(-2);
+  const certNumber = `${yearYY}${month}${day}${equipmentOp}`;
 
+  const uniqueStandardsMap = new Map();
   if (record.readings && record.readings.length > 0) {
     record.readings.forEach(sec => {
-      if (sec.points && sec.points.length > 0) {
-        sec.points.forEach(pt => {
-          if (pt.targetValue < minVal) minVal = pt.targetValue;
-          if (pt.targetValue > maxVal) {
-            maxVal = pt.targetValue;
-            unit = pt.unit;
-          }
-        });
+      if (sec.standard) {
+        uniqueStandardsMap.set(sec.standard.code, sec.standard);
       }
     });
   }
-
-  const rangeStr = minVal !== Infinity ? `${minVal} a ${maxVal} ${unit}` : 'N/A';
-  const formattedDate = new Date(record.created_at).toLocaleDateString('pt-BR');
+  const standardsList = Array.from(uniqueStandardsMap.values());
 
   // Padrão LHF default se não houver cliente preenchido
   const clientCompany = record.client_company || 'LHF Sistemas de Teste e Medição Ltda';
   const clientCnpj = record.client_cnpj || '10.994.190/0001-63';
   const clientEmail = record.client_email || 'vendas@lhf.ind.br';
   const clientAddress = record.client_company 
-    ? 'Endereço cadastrado no sistema'
+    ? (record.client_adress || 'Sem endereço cadastrado')
     : 'R. Christina Enriconi Marcatto, 100 - Jaraguá Esquerdo';
-  const clientCity = record.client_company ? '' : 'Jaraguá do Sul - SC';
+  const clientCity = record.client_company 
+    ? (record.client_city || '') 
+    : 'Jaraguá do Sul - SC';
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Cabeçalho da Empresa */}
-        <View style={styles.headerContainer}>
+        {/* Cabeçalho Fixo (Repetirá em todas as páginas) */}
+        <View style={styles.headerContainer} fixed>
           <View style={styles.logoSection}>
             <Image src={LHF_LOGO_BASE64} style={styles.logoImage} />
           </View>
@@ -266,7 +279,7 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
         {/* Título do Relatório */}
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Relatório de Calibração de Equipamento</Text>
-          <Text style={styles.subtitle}>Certificado Nº {record.id}</Text>
+          <Text style={styles.subtitle}>Certificado Nº {certNumber}</Text>
         </View>
 
         {/* Grid de Informações do Equipamento e Cliente */}
@@ -275,7 +288,7 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
             <Text style={styles.sectionTitle}>Equipamento Calibrado</Text>
             <View style={styles.rowItem}>
               <Text style={styles.rowLabel}>Descrição:</Text>
-              <Text style={styles.rowVal}>{equipmentName}</Text>
+              <Text style={styles.rowVal}>{equipmentType}</Text>
             </View>
             <View style={styles.rowItem}>
               <Text style={styles.rowLabel}>N° Série (NS):</Text>
@@ -286,8 +299,8 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
               <Text style={styles.rowVal}>LHF</Text>
             </View>
             <View style={styles.rowItem}>
-              <Text style={styles.rowLabel}>Modelo/OP:</Text>
-              <Text style={styles.rowVal}>{record.template_name} (OP: {equipmentOp})</Text>
+              <Text style={styles.rowLabel}>Modelo:</Text>
+              <Text style={styles.rowVal}>{equipmentName}</Text>
             </View>
             <View style={styles.rowItem}>
               <Text style={styles.rowLabel}>Faixa Medição:</Text>
@@ -296,6 +309,10 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
             <View style={styles.rowItem}>
               <Text style={styles.rowLabel}>Data Calibração:</Text>
               <Text style={styles.rowVal}>{formattedDate}</Text>
+            </View>
+            <View style={styles.rowItem}>
+              <Text style={styles.rowLabel}>Data Emissão:</Text>
+              <Text style={styles.rowVal}>{issuedDate}</Text>
             </View>
           </View>
 
@@ -351,8 +368,15 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
           </View>
 
           <View style={styles.col}>
-            <Text style={styles.sectionTitle}>Padrão de Referência Utilizado</Text>
-            {record.standard_code ? (
+            <Text style={styles.sectionTitle}>Padrões de Referência Utilizados</Text>
+            {standardsList.length > 0 ? (
+              standardsList.map((std: any, idx) => (
+                <View key={idx} style={{ marginBottom: 6 }}>
+                  <Text style={[{ color: '#333333' }, styles.boldText]}>[{std.code}] {std.name}</Text>
+                  <Text style={{ color: '#333333' }}>Certificado: {std.certificate_number}</Text>
+                </View>
+              ))
+            ) : record.standard_code ? (
               <>
                 <View style={styles.rowItem}>
                   <Text style={styles.rowLabel}>Código:</Text>
@@ -364,7 +388,13 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
                 </View>
                 <View style={styles.rowItem}>
                   <Text style={styles.rowLabel}>Certificado RBC:</Text>
-                  <Text style={styles.rowVal}>{record.standard_certificate}</Text>
+                  {record.standard_certificate_url ? (
+                    <Link src={record.standard_certificate_url} style={[styles.rowVal, { color: '#076DF2', textDecoration: 'underline' }]}>
+                      {record.standard_certificate}
+                    </Link>
+                  ) : (
+                    <Text style={styles.rowVal}>{record.standard_certificate}</Text>
+                  )}
                 </View>
               </>
             ) : (
@@ -391,7 +421,6 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
                   <Text style={[styles.th, styles.colEquipment]}>SMC (Média Equip.)</Text>
                   <Text style={[styles.th, styles.colDeviation]}>Desvio</Text>
                   <Text style={[styles.th, styles.colUncertainty]}>Incerteza (U)</Text>
-                  <Text style={[styles.th, styles.colStatus]}>Status</Text>
                 </View>
 
                 {/* Linhas da Tabela */}
@@ -411,13 +440,6 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
                     </Text>
                     <Text style={[styles.td, styles.colUncertainty]}>
                       {pt.uncertaintyExpanded !== undefined ? `${pt.uncertaintyExpanded} ${pt.unit}` : '-'}
-                    </Text>
-                    <Text style={[
-                      styles.td, 
-                      styles.colStatus, 
-                      pt.status === 'Aprovado' ? styles.statusApproved : styles.statusRejected
-                    ]}>
-                      {pt.status}
                     </Text>
                   </View>
                 ))}
@@ -446,11 +468,17 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
         {/* Assinatura */}
         <View style={styles.signatureContainer} wrap={false}>
           <View style={styles.signatureBox}>
+            {record.operator_signature_url ? (
+              <Image src={record.operator_signature_url} style={{ width: 120, height: 40, objectFit: 'contain' }} />
+            ) : (
+              <View style={{ height: 40 }} />
+            )}
             <View style={styles.signatureLine} />
             <Text style={styles.signatureText}>Técnico Responsável</Text>
             <Text style={[styles.signatureText, { fontWeight: 'bold' }]}>{record.operator}</Text>
           </View>
           <View style={styles.signatureBox}>
+            <View style={{ height: 40 }} />
             <View style={styles.signatureLine} />
             <Text style={styles.signatureText}>LHF Sistemas de Teste e Medição</Text>
             <Text style={styles.signatureText}>Controle de Qualidade</Text>

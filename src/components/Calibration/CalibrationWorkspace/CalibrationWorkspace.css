@@ -27,17 +27,12 @@
   transition: color var(--transition-normal), border-color var(--transition-normal);
 }
 
-.equipment-details-banner {
-  background-color: var(--bg-color);
-  border-left: 4px solid var(--primary-color, #0F398C);
-  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+.workspace-header{
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
-.details-grid {
-  display: flex;
-  gap: 32px;
-  font-size: 15px;
-}
 
 .form-group-row {
   display: flex;
@@ -93,4 +88,36 @@
 .btn-save-calibration:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.correction-banner {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #047857;
+  background-color: #ecfdf5;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #a7f3d0;
+}
+
+.correction-banner-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.correction-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.correction-label {
+  cursor: pointer;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.environmental-row {
+  margin-bottom: 16px;
 }

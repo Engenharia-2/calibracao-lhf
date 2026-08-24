@@ -1,15 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { IClient } from '../services/clients/ApiClientsRepository';
 
 interface UseCreateClientProps {
+  client?: IClient | null;
   onSuccess?: () => void;
 }
 
-export function useCreateClient({ onSuccess }: UseCreateClientProps = {}) {
-  const [company, setCompany] = useState('');
-  const [cnpj, setCnpj] = useState('');
-  const [email, setEmail] = useState('');
+export function useCreateClient({ client, onSuccess }: UseCreateClientProps = {}) {
+  const [company, setCompany] = useState(client?.company || '');
+  const [cnpj, setCnpj] = useState(client?.cnpj || '');
+  const [email, setEmail] = useState(client?.email || '');
+  const [adress, setAdress] = useState(client?.adress || '');
+  const [city, setCity] = useState(client?.city || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCompany(client?.company || '');
+    setCnpj(client?.cnpj || '');
+    setEmail(client?.email || '');
+    setAdress(client?.adress || '');
+    setCity(client?.city || '');
+    setError(null);
+  }, [client]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,21 +35,30 @@ export function useCreateClient({ onSuccess }: UseCreateClientProps = {}) {
     setError(null);
 
     try {
-      if (typeof (window as any).electron?.createClient !== 'function') {
-        throw new Error('Função de comunicação indisponível no Electron.');
+      if (client?.id) {
+        if (typeof (window as any).electron?.updateClient !== 'function') {
+          throw new Error('Função de comunicação updateClient indisponível.');
+        }
+        const result = await (window as any).electron.updateClient(client.id, company, cnpj, email, adress, city);
+        console.log('Cliente atualizado:', result);
+      } else {
+        if (typeof (window as any).electron?.createClient !== 'function') {
+          throw new Error('Função de comunicação createClient indisponível.');
+        }
+        const result = await (window as any).electron.createClient(company, cnpj, email, adress, city);
+        console.log('Cliente criado:', result);
       }
-      
-      const result = await (window as any).electron.createClient(company, cnpj, email);
-      console.log('Cliente criado:', result);
       
       setCompany('');
       setCnpj('');
       setEmail('');
+      setAdress('');
+      setCity('');
       if (onSuccess) {
         onSuccess();
       }
     } catch (err: any) {
-      setError(err?.message || 'Erro ao cadastrar cliente. Tente novamente.');
+      setError(err?.message || 'Erro ao salvar cliente. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +71,10 @@ export function useCreateClient({ onSuccess }: UseCreateClientProps = {}) {
     setCnpj,
     email,
     setEmail,
+    adress,
+    setAdress,
+    city,
+    setCity,
     isLoading,
     error,
     handleSubmit

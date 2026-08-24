@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { ITemplateSection, ITemplatePoint } from '../../../services/templates/ApiTemplatesRepository';
+import { IReferenceStandard } from '../../../services/standards/ApiStandardsRepository';
 import { Button } from '../../ui/Button/Button';
 import { UnitSelect } from '../../ui/UnitSelect/UnitSelect';
 import './SectionBuilder.css';
@@ -7,21 +8,27 @@ import './SectionBuilder.css';
 interface SectionBuilderProps {
   section: ITemplateSection;
   sectionIndex: number;
+  standards?: IReferenceStandard[];
   onUpdate: (fields: Partial<ITemplateSection>) => void;
   onRemove: () => void;
   onAddPoint: () => void;
   onRemovePoint: (pointIndex: number) => void;
   onUpdatePoint: (pointIndex: number, fields: Partial<ITemplatePoint>) => void;
+  onStandardSelect?: (idVal: string | number) => void;
+  onSyncStandard?: () => void;
 }
 
 export function SectionBuilder({
   section,
   sectionIndex,
+  standards = [],
   onUpdate,
   onRemove,
   onAddPoint,
   onRemovePoint,
-  onUpdatePoint
+  onUpdatePoint,
+  onStandardSelect,
+  onSyncStandard
 }: SectionBuilderProps) {
 
   const renderCount = useRef(0);
@@ -33,31 +40,7 @@ export function SectionBuilder({
     return () => console.log(`[SectionBuilder.tsx #${sectionIndex + 1}] COMPONENT UNMOUNTED`);
   }, []);
 
-  const handleColumnsPresetChange = (preset: string) => {
-    if (preset === 'standard_set') {
-      onUpdate({
-        columns: [
-          { key: 'standard', label: 'Padrão' },
-          { key: 'equipment', label: 'Conjunto' }
-        ]
-      });
-    } else if (preset === 'standard_panel') {
-      onUpdate({
-        columns: [
-          { key: 'standard', label: 'Padrão' },
-          { key: 'panel', label: 'Painel' }
-        ]
-      });
-    } else if (preset === 'megometer_5kv') {
-      onUpdate({
-        columns: [
-          { key: 'standard', label: 'Padrão' },
-          { key: 'set_1kv', label: 'Conjunto (1 kV)' },
-          { key: 'set_5kv', label: 'Conjunto (5 kV)' }
-        ]
-      });
-    }
-  };
+
 
   return (
     <div className="section-builder-card">
@@ -100,17 +83,32 @@ export function SectionBuilder({
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Predefinição de Colunas de Teste</label>
-          <select 
-            className="form-input" 
-            onChange={(e) => handleColumnsPresetChange(e.target.value)}
-            defaultValue="standard_set"
-          >
-            <option value="standard_set">Padrão + Conjunto (Ex: Surge, LRM, Megômetro 1kV)</option>
-            <option value="standard_panel">Padrão + Painel (Ex: Hipot)</option>
-            <option value="megometer_5kv">Padrão + Conjunto 1kV + Conjunto 5kV (Ex: Megômetro 5kV)</option>
-          </select>
+        <div className="form-group" style={{ display: 'flex', flexDirection: 'column' }}>
+          <label>Padrão de Referência Utilizado</label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select
+              className="form-input"
+              value={section.standard_id || ''}
+              onChange={(e) => {
+                const val = e.target.value;
+                onUpdate({ standard_id: val ? Number(val) : null });
+                if (val && onStandardSelect) onStandardSelect(val);
+              }}
+              style={{ flex: 1 }}
+            >
+              <option value="">-- Selecione o Padrão para esta Seção --</option>
+              {standards.map(std => (
+                <option key={std.id} value={std.id}>
+                  [{std.code}] {std.name} ({std.certificate_number})
+                </option>
+              ))}
+            </select>
+            {section.standard_id && onSyncStandard && (
+              <Button type="button" variant="secondary" onClick={onSyncStandard}>
+                Sincronizar
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -125,13 +123,14 @@ export function SectionBuilder({
               <tr>
                 <th>Grupo / Escala (Opcional)</th>
                 <th>Valor Alvo (Nominal)</th>
+                <th>Resolução</th>
                 <th>Unidade</th>
                 <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               {section.points.map((point, pIdx) => (
-                <tr key={point.id || pIdx}>
+                <tr key={`${point.id || pIdx}-${point.targetValue}-${point.unit}-${point.resolution}`}>
                   <td>
                     <input
                       type="text"
@@ -149,6 +148,19 @@ export function SectionBuilder({
                       defaultValue={point.targetValue || ''}
                       onBlur={(e) => onUpdatePoint(pIdx, { targetValue: Number(e.target.value) })}
                       placeholder="Ex: 10.005"
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="any"
+                      className="form-input table-input"
+                      defaultValue={point.resolution !== undefined && point.resolution !== null ? point.resolution : ''}
+                      onBlur={(e) => {
+                        const val = e.target.value;
+                        onUpdatePoint(pIdx, { resolution: val !== '' ? Number(val) : undefined });
+                      }}
+                      placeholder="Ex: 0.01"
                     />
                   </td>
                   <td>

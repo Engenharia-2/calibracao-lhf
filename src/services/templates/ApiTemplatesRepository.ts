@@ -8,6 +8,7 @@ export interface ITemplatePoint {
   group?: string;
   targetValue: number;
   unit?: string;
+  resolution?: number;
   isLinkedToStandard?: boolean;
   standardPointKey?: string;
 }
@@ -18,6 +19,7 @@ export interface ITemplateSection {
   cyclesCount: number;
   columns: ITemplateColumn[];
   points: ITemplatePoint[];
+  standard_id?: string | number | null;
 }
 
 export interface ICalibrationTemplate {

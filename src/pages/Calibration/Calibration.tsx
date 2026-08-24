@@ -14,6 +14,7 @@ interface CalibrationProps {
 export function Calibration({ currentUser, preselectedEquipment, onClearPreselected }: CalibrationProps) {
   const [equipments, setEquipments] = useState<IEquipment[]>([]);
   const [selectedEquipment, setSelectedEquipment] = useState<IEquipment | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +53,15 @@ export function Calibration({ currentUser, preselectedEquipment, onClearPreselec
     setSelectedEquipment(eq);
   };
 
+  const filteredEquipments = equipments.filter(eq => {
+    const term = searchTerm.toLowerCase();
+    const typeMatch = eq.equipment_type?.toLowerCase().includes(term) || false;
+    const nameMatch = eq.name?.toLowerCase().includes(term) || false;
+    const opMatch = eq.op?.toLowerCase().includes(term) || false;
+    const nsMatch = eq.ns?.toLowerCase().includes(term) || false;
+    return typeMatch || nameMatch || opMatch || nsMatch;
+  });
+
   if (selectedEquipment) {
     return (
       <CalibrationWorkspace 
@@ -64,10 +74,7 @@ export function Calibration({ currentUser, preselectedEquipment, onClearPreselec
 
   return (
     <div className="calibration-select-page">
-      <PageHeader 
-        title="Execução de Calibrações" 
-        subtitle="Selecione um equipamento cadastrado abaixo para iniciar o formulário de bancada."
-      />
+      <PageHeader />
 
       <div className="workspace-main">
         <div className="workspace-card select-equipment-card">
@@ -83,21 +90,32 @@ export function Calibration({ currentUser, preselectedEquipment, onClearPreselec
               <p>Por favor, adicione um equipamento na aba "Equipamentos" antes de prosseguir.</p>
             </div>
           ) : (
-            <div className="form-group" style={{ marginTop: '16px' }}>
-              <label htmlFor="equipmentSelect" style={{ fontWeight: '500', marginBottom: '8px', display: 'block' }}>
+            <div className="form-group calibration-form-group">
+              <label htmlFor="equipmentSearch" className="calibration-form-label">
+                Pesquisar Equipamento
+              </label>
+              <input
+                id="equipmentSearch"
+                type="text"
+                className="form-input calibration-search-input"
+                placeholder="Busque por tipo, modelo, NS ou OP..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+
+              <label htmlFor="equipmentSelect" className="calibration-form-label">
                 Selecione o Equipamento
               </label>
               <select
                 id="equipmentSelect"
-                className="form-input"
+                className="form-input calibration-select-input"
                 value=""
                 onChange={handleEquipmentChange}
-                style={{ width: '100%', padding: '10px', fontSize: '15px' }}
               >
                 <option value="">-- Clique para escolher --</option>
-                {equipments.map(eq => (
+                {filteredEquipments.map(eq => (
                   <option key={eq.id} value={eq.id}>
-                    {eq.name} (NS: {eq.ns} | OP: {eq.op})
+                    {eq.equipment_type ? `${eq.equipment_type} - ` : ''}{eq.name} (NS: {eq.ns} | OP: {eq.op})
                   </option>
                 ))}
               </select>

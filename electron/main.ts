@@ -8,6 +8,7 @@ import { ApiEquipmentsRepository } from '../src/services/equipments/ApiEquipment
 import { ApiClientsRepository } from '../src/services/clients/ApiClientsRepository'
 import { ApiTemplatesRepository } from '../src/services/templates/ApiTemplatesRepository'
 import { ApiStandardsRepository } from '../src/services/standards/ApiStandardsRepository'
+import { ApiDashboardRepository } from '../src/services/dashboard/ApiDashboardRepository'
 
 // The built directory structure
 process.env.DIST = path.join(__dirname, '../dist')
@@ -36,13 +37,16 @@ const templatesRepository = new ApiTemplatesRepository()
 // Initialize Standards Repository
 const standardsRepository = new ApiStandardsRepository()
 
+// Initialize Dashboard Repository
+const dashboardRepository = new ApiDashboardRepository()
+
 // Setup IPC handlers
 ipcMain.handle('auth:login', async (_, email, password) => {
   return authService.login(email, password)
 })
 
-ipcMain.handle('auth:register', async (_, name, email, password) => {
-  return authService.register(name, email, password)
+ipcMain.handle('auth:register', async (_, name, email, password, signatureBase64) => {
+  return authService.register(name, email, password, signatureBase64)
 })
 
 ipcMain.handle('calibration:save', async (_, data) => {
@@ -53,20 +57,40 @@ ipcMain.handle('calibration:getByEquipment', async (_, equipmentId) => {
   return calibrationRepository.getByEquipmentId(equipmentId)
 })
 
+ipcMain.handle('calibration:updateHeader', async (_, id, clientId, createdAt) => {
+  return calibrationRepository.updateHeader(id, clientId, createdAt)
+})
+
 ipcMain.handle('equipments:getAll', async () => {
   return equipmentsRepository.getAll()
 })
 
-ipcMain.handle('equipments:create', async (_, op, ns, name) => {
-  return equipmentsRepository.create(op, ns, name)
+ipcMain.handle('equipments:create', async (_, op, ns, name, equipmentType, measurementRange) => {
+  return equipmentsRepository.create(op, ns, name, equipmentType, measurementRange)
+})
+
+ipcMain.handle('equipments:update', async (_, id, op, ns, name, equipmentType, measurementRange) => {
+  return equipmentsRepository.update(id, op, ns, name, equipmentType, measurementRange)
+})
+
+ipcMain.handle('equipments:delete', async (_, id) => {
+  return equipmentsRepository.delete(id)
 })
 
 ipcMain.handle('clients:getAll', async () => {
   return clientsRepository.getAll()
 })
 
-ipcMain.handle('clients:create', async (_, company, cnpj, email) => {
-  return clientsRepository.create(company, cnpj, email)
+ipcMain.handle('clients:create', async (_, company, cnpj, email, adress, city) => {
+  return clientsRepository.create(company, cnpj, email, adress, city)
+})
+
+ipcMain.handle('clients:update', async (_, id, company, cnpj, email, adress, city) => {
+  return clientsRepository.update(id, company, cnpj, email, adress, city)
+})
+
+ipcMain.handle('clients:delete', async (_, id) => {
+  return clientsRepository.delete(id)
 })
 
 ipcMain.handle('templates:getAll', async () => {
@@ -113,6 +137,10 @@ ipcMain.handle('standards:delete', async (_, id) => {
   const res = await standardsRepository.delete(id)
   win?.webContents.send('standards:updated')
   return res
+})
+
+ipcMain.handle('dashboard:getMetrics', async (_, filters) => {
+  return dashboardRepository.getMetrics(filters)
 })
 
 function createWindow() {

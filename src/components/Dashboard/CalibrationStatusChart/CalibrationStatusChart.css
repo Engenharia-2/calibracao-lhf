@@ -1,0 +1,98 @@
+/* CalibrationStatusChart.css */
+
+.chart-card {
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.no-chart-data {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.chart-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.svg-wrapper {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.chart-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.percent-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.percent-text {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: -2px;
+}
+
+.chart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.legend-bullet {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.approved-bullet { background-color: #10b981; }
+.reproved-bullet { background-color: #ef4444; }
+
+.legend-label {
+  color: var(--text-secondary);
+}
+
+.legend-label strong {
+  color: var(--text-primary);
+}

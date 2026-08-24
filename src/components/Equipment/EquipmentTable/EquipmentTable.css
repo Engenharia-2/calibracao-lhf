@@ -1,38 +1,82 @@
+/* EquipmentTable.css */
+
 /* Estilos de tabela herdados globalmente de index.css */
 
-.btn-action-calibrate {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: var(--color-primary-blue, #0F398C);
-  color: white;
-  border: none;
-}
-
-.btn-action-calibrate:hover {
-  background-color: var(--color-secondary-blue, #076DF2);
-}
-
-.action-buttons-cell {
+.action-icons-cell {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
-.btn-action-history {
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  font-weight: 500;
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: #64748b;
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: #6c757d;
-  color: white;
-  border: none;
+  padding: 0;
 }
 
-.btn-action-history:hover {
-  background-color: #5a6268;
+.icon-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.icon-btn.calibrate-btn:hover {
+  background-color: #eff6ff;
+  color: var(--color-primary-blue, #0F398C);
+}
+
+.icon-btn.history-btn:hover {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.icon-btn.edit-btn:hover {
+  background-color: #fefce8;
+  color: #a16207;
+}
+
+.icon-btn.delete-btn:hover {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+/* Badge de Tipo de Equipamento (Alinhado com TemplateTable) */
+.badge-type {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.badge-type.surge {
+  background-color: #e8f0fe;
+  color: #1557b0;
+}
+
+.badge-type.hipot {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.badge-type.megometer {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.badge-type.lrm,
+.badge-type.miliohmimetro {
+  background-color: #f8d7da;
+  color: #842029;
 }

@@ -295,3 +295,63 @@ select.form-input option {
 .data-table tbody tr:hover {
   background-color: var(--bg-color);
 }
+
+/* Remove setas padrão (spinners) de todos os inputs numéricos do app */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+\n
+/* Global Icon Buttons for Tables */
+.action-icons-cell {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.icon-btn:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.icon-btn.calibrate-btn:hover {
+  background-color: #eff6ff;
+  color: var(--color-primary-blue, #0F398C);
+}
+
+.icon-btn.history-btn:hover {
+  background-color: #f8fafc;
+  color: #334155;
+}
+
+.icon-btn.edit-btn:hover {
+  background-color: #fefce8;
+  color: #a16207;
+}
+
+.icon-btn.delete-btn:hover {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}

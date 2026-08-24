@@ -5,7 +5,7 @@
 }
 
 .select-equipment-card {
-  max-width: 600px;
+  max-width: 1200px;
   background-color: var(--surface-color);
   padding: 28px;
   border-radius: var(--radius-sm);
@@ -34,4 +34,26 @@
   margin: 0 0 8px 0;
   color: var(--text-primary);
   transition: color var(--transition-normal);
+}
+
+.calibration-form-group {
+  margin-top: 16px;
+}
+
+.calibration-form-label {
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+  color: var(--text-primary);
+}
+
+.calibration-search-input {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.calibration-select-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
 }

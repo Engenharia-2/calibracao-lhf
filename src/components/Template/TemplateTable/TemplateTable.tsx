@@ -1,3 +1,4 @@
+import { Pencil, Trash2 } from 'lucide-react';
 import { ICalibrationTemplate } from '../../../services/templates/ApiTemplatesRepository';
 import './TemplateTable.css';
 
@@ -14,8 +15,8 @@ export function TemplateTable({ templates, onEdit, onDelete }: TemplateTableProp
         <thead>
           <tr>
             <th>ID (Formulário)</th>
-            <th>Nome do Equipamento</th>
             <th>Tipo</th>
+            <th>Nome do Equipamento</th>
             <th>Tolerância (MPE)</th>
             <th>Ações</th>
           </tr>
@@ -24,20 +25,20 @@ export function TemplateTable({ templates, onEdit, onDelete }: TemplateTableProp
           {templates.map((tpl) => (
             <tr key={tpl.id}>
               <td><strong>{tpl.id}</strong></td>
-              <td>{tpl.name}</td>
               <td>
                 <span className={`badge-type ${tpl.equipment_type.toLowerCase()}`}>
                   {tpl.equipment_type}
                 </span>
               </td>
+              <td>{tpl.name}</td>
               <td>±{tpl.tolerance}%</td>
               <td>
-                <div className="action-buttons">
-                  <button className="btn-action edit" onClick={() => onEdit(tpl.id)}>
-                    Editar
+                <div className="action-icons-cell">
+                  <button className="icon-btn edit-btn" onClick={() => onEdit(tpl.id)} title="Editar Template">
+                    <Pencil size={18} />
                   </button>
-                  <button className="btn-action delete" onClick={() => onDelete(tpl.id)}>
-                    Excluir
+                  <button className="icon-btn delete-btn" onClick={() => onDelete(tpl.id)} title="Excluir Template">
+                    <Trash2 size={18} />
                   </button>
                 </div>
               </td>

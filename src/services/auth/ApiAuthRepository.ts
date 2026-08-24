@@ -21,12 +21,12 @@ export class ApiAuthRepository implements IAuthRepository {
     }
   }
 
-  async register(name: string, email: string, password: string): Promise<AuthResult> {
+  async register(name: string, email: string, password: string, signatureBase64?: string): Promise<AuthResult> {
     try {
       const response = await fetch(`${this.apiUrl}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password, signatureBase64 })
       });
 
       const data = await response.json();

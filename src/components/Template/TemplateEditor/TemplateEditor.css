@@ -4,6 +4,21 @@
   gap: 24px;
 }
 
+.internal-page-header {
+  margin-bottom: 24px;
+}
+.internal-page-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+.internal-page-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
 .template-editor-form {
   display: flex;
   flex-direction: column;

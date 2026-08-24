@@ -10,5 +10,5 @@ export interface AuthResult {
 
 export interface IAuthRepository {
   login(email: string, password: string): Promise<AuthResult>;
-  register(name: string, email: string, password: string): Promise<AuthResult>;
+  register(name: string, email: string, password: string, signatureBase64?: string): Promise<AuthResult>;
 }

@@ -16,6 +16,7 @@ export interface IReferenceStandard {
   certificate_number: string;
   validity_date: string;
   points: IStandardPoint[] | string;
+  certificate_url?: string;
   created_at?: string;
 }
 

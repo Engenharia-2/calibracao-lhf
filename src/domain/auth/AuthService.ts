@@ -14,10 +14,10 @@ export class AuthService {
     return this.authRepository.login(email, password);
   }
 
-  async register(name: string, email: string, password: string): Promise<AuthResult> {
+  async register(name: string, email: string, password: string, signatureBase64?: string): Promise<AuthResult> {
     if (!name || !email || !password) {
       return { success: false, error: 'Todos os campos são obrigatórios' };
     }
-    return this.authRepository.register(name, email, password);
+    return this.authRepository.register(name, email, password, signatureBase64);
   }
 }

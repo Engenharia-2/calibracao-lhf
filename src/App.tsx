@@ -7,6 +7,7 @@ import { Equipments } from './pages/Equipments/Equipments'
 import { Clients } from './pages/Clients/Clients'
 import { Calibration } from './pages/Calibration/Calibration'
 import { Standards } from './pages/Standards/Standards'
+import { Dashboard } from './pages/Dashboard/Dashboard'
 import { IEquipment } from './services/equipments/ApiEquipmentsRepository'
 
 import { MainLayout } from './components/layout/MainLayout/MainLayout'
@@ -14,13 +15,14 @@ import { MainLayout } from './components/layout/MainLayout/MainLayout'
 export interface UserData {
   name: string;
   email: string;
+  signatureUrl?: string | null;
 }
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const [currentUser, setCurrentUser] = useState<UserData | null>(null)
-  const [activePage, setActivePage] = useState('formularios')
+  const [activePage, setActivePage] = useState('dashboard')
   const [preselectedEquipment, setPreselectedEquipment] = useState<IEquipment | null>(null)
 
   const handleLoginSuccess = (user?: UserData) => {
@@ -70,6 +72,7 @@ function App() {
         setActivePage(page)
       }}
     >
+      {activePage === 'dashboard' && <Dashboard />}
       {activePage === 'formularios' && <Templates />}
       {activePage === 'equipamentos' && <Equipments onCalibrate={handleCalibrateRedirect} />}
       {activePage === 'clientes' && <Clients />}

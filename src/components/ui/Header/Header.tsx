@@ -5,6 +5,7 @@ import './Header.css';
 interface HeaderProps {
   currentUser?: UserData | null;
   onLogout: () => void;
+  title?: string;
 }
 
 function getInitials(name?: string): string {
@@ -19,7 +20,7 @@ function getInitials(name?: string): string {
   return parts[0].toUpperCase();
 }
 
-export function Header({ currentUser, onLogout }: HeaderProps) {
+export function Header({ currentUser, onLogout, title }: HeaderProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +81,7 @@ export function Header({ currentUser, onLogout }: HeaderProps) {
     <header className="header-container">
       <div className="header-content">
         <div className="header-title">
-          <h3>Painel de Controle</h3>
+          <h3>{title || 'Painel de Controle'}</h3>
         </div>
         
         <div className="header-actions">

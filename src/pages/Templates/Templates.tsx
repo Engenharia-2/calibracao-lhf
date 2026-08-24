@@ -10,6 +10,15 @@ export function Templates() {
   const { templates, isLoading, deleteTemplate, refresh } = useTemplates();
   const [editorId, setEditorId] = useState<string | null | undefined>(null); // null = lista, undefined = novo, string = editar
   const [isEditing, setIsEditing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredTemplates = templates.filter(tmpl => {
+    const term = searchTerm.toLowerCase();
+    return (
+      (tmpl.name?.toLowerCase() || '').includes(term) ||
+      (tmpl.equipment_type?.toLowerCase() || '').includes(term)
+    );
+  });
 
   const handleEdit = (id: string) => {
     setEditorId(id);
@@ -39,8 +48,8 @@ export function Templates() {
   return (
     <div className="templates-page">
       <PageHeader 
-        title="Modelos de Formulários de Calibração" 
-        subtitle="Configure e gerencie as tabelas, escalas e pontos nominais que guiarão a calibração de cada equipamento."
+        onSearch={setSearchTerm}
+        searchPlaceholder="Buscar por formulário ou tipo..."
         action={
           <Button variant="primary" onClick={handleCreateNew}>
             + Novo Formulário
@@ -56,9 +65,14 @@ export function Templates() {
             <h3>Nenhum formulário cadastrado</h3>
             <p>Clique no botão acima para criar o seu primeiro formulário dinâmico.</p>
           </div>
+        ) : filteredTemplates.length === 0 ? (
+          <div className="empty-state">
+            <h3>Nenhum formulário encontrado</h3>
+            <p>Não há formulários que correspondam à busca "{searchTerm}".</p>
+          </div>
         ) : (
           <TemplateTable 
-            templates={templates} 
+            templates={filteredTemplates} 
             onEdit={handleEdit} 
             onDelete={deleteTemplate} 
           />

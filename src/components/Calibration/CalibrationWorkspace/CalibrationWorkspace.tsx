@@ -4,6 +4,7 @@ import { DynamicGrid } from '../DynamicGrid/DynamicGrid';
 import { Button } from '../../ui/Button/Button';
 import { PageHeader } from '../../ui/PageHeader/PageHeader';
 import { UserData } from '../../../App';
+import { EquipmentInfo } from '../../Equipment/EquipmentInfo/EquipmentInfo';
 import './CalibrationWorkspace.css';
 
 interface CalibrationWorkspaceProps {
@@ -17,7 +18,7 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     templates,
     selectedTemplateId,
     setSelectedTemplateId,
-    selectedStandard,
+
     templateDetail,
     operatorRef,
     temperatureRef,
@@ -31,7 +32,9 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     error,
     clients,
     selectedClientId,
-    setSelectedClientId
+    setSelectedClientId,
+    applyStandardCorrection,
+    setApplyStandardCorrection
   } = useCalibrationWorkspace({ currentUser, equipment, onSuccess: onBack });
 
   const struct = templateDetail
@@ -42,28 +45,21 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
 
   return (
     <div className="calibration-workspace-page">
-      <PageHeader 
-        title="Executar Calibração de Equipamento" 
-        subtitle="Insira as leituras coletadas na bancada para calcular os desvios automaticamente."
+      <div className="workspace-header">
+        <PageHeader 
         action={
           <Button variant="secondary" onClick={onBack}>
-            Cancelar / Voltar
+            Voltar  
           </Button>
-        }
-      />
+          }
+        />
+      </div>
 
       <div className="workspace-main">
-        {/* Info do Equipamento */}
-        <div className="workspace-card equipment-details-banner">
-          <h3>Equipamento em Teste</h3>
-          <div className="details-grid">
-            <div><strong>Nome:</strong> {equipment.name}</div>
-            <div><strong>Número de Série (NS):</strong> {equipment.ns}</div>
-            <div><strong>Ordem de Produção (OP):</strong> {equipment.op}</div>
-          </div>
-        </div>
+        {/* Header do Equipamento selecionado */}
+        <EquipmentInfo equipment={equipment} />
 
-        {/* Escolha do Formulário */}
+        {/* Formulário Interativo de Calibração */}
         <div className="workspace-card select-form-card">
           <h3>Selecione o Modelo de Formulário</h3>
           <div className="form-group-row">
@@ -87,11 +83,20 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
             </div>
           </div>
 
-          {selectedStandard && (
-            <div style={{ marginTop: '12px', fontSize: '13px', color: '#047857', backgroundColor: '#ecfdf5', padding: '10px 14px', borderRadius: '6px', border: '1px solid #a7f3d0' }}>
-              <strong>✓ Padrão de Referência RBC Vinculado:</strong> [{selectedStandard.code}] {selectedStandard.name} | <strong>Certificado:</strong> {selectedStandard.certificate_number} | <strong>Validade:</strong> {new Date(selectedStandard.validity_date).toLocaleDateString('pt-BR')}
+          <div className="correction-banner">
+            <div className="correction-banner-row">
+              <input
+                type="checkbox"
+                id="applyCorrection"
+                className="correction-checkbox"
+                checked={applyStandardCorrection}
+                onChange={(e) => setApplyStandardCorrection(e.target.checked)}
+              />
+              <label htmlFor="applyCorrection" className="correction-label">
+                Aplicar Correção dos Padrões RBC (Compensar erros do certificado nas leituras)
+              </label>
             </div>
-          )}
+          </div>
         </div>
 
         {selectedTemplateId && templateDetail && (
@@ -99,7 +104,7 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
             {/* Dados Ambientais */}
             <div className="workspace-card environmental-card">
               <h3>Condições Ambientais e Operador</h3>
-              <div className="form-group-row" style={{ marginBottom: '16px' }}>
+              <div className="form-group-row environmental-row">
                 <div className="form-group">
                   <label htmlFor="clientSelect">Cliente do Certificado</label>
                   <select

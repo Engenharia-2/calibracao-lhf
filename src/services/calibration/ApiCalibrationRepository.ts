@@ -3,7 +3,7 @@
 export class ApiCalibrationRepository {
   private apiUrl = `${process.env.VITE_API_BASE_URL || 'http://localhost:3002/api'}/calibration`;
 
-  async save(data: any): Promise<void> {
+  async save(data: any): Promise<any> {
     try {
       const response = await fetch(this.apiUrl, {
         method: 'POST',
@@ -20,6 +20,7 @@ export class ApiCalibrationRepository {
 
       const result = await response.json();
       console.log('Resposta da API:', result);
+      return result.data || result;
     } catch (error) {
       console.error('Erro de rede ao salvar na API:', error);
       throw error;
@@ -36,6 +37,28 @@ export class ApiCalibrationRepository {
       return result.data;
     } catch (error) {
       console.error('Erro ao buscar histórico de calibração:', error);
+      throw error;
+    }
+  }
+
+  async updateHeader(id: number | string, clientId: number | null, createdAt: string): Promise<any> {
+    try {
+      const response = await fetch(`${this.apiUrl}/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ clientId, createdAt })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || `Falha ao atualizar cabeçalho: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Erro de rede ao atualizar cabeçalho de calibração:', error);
       throw error;
     }
   }

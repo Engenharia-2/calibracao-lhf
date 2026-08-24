@@ -4,6 +4,7 @@ import { ApiEquipmentsRepository } from '../services/equipments/ApiEquipmentsRep
 import { ApiClientsRepository } from '../services/clients/ApiClientsRepository';
 import { ApiTemplatesRepository } from '../services/templates/ApiTemplatesRepository';
 import { ApiStandardsRepository } from '../services/standards/ApiStandardsRepository';
+import { ApiDashboardRepository } from '../services/dashboard/ApiDashboardRepository';
 
 // Garante que process.env.VITE_API_BASE_URL esteja definido no navegador
 if (typeof window !== 'undefined') {
@@ -27,6 +28,7 @@ const equipmentsRepo = new ApiEquipmentsRepository();
 const clientsRepo = new ApiClientsRepository();
 const templatesRepo = new ApiTemplatesRepository();
 const standardsRepo = new ApiStandardsRepository();
+const dashboardRepo = new ApiDashboardRepository();
 
 if (typeof window !== 'undefined' && !window.electron) {
   console.log('[Web Fallback] Iniciando adaptador de comunicação HTTP direta com API do Synology...');
@@ -36,10 +38,15 @@ if (typeof window !== 'undefined' && !window.electron) {
     authRegister: (name, email, password) => authRepo.register(name, email, password),
     saveCalibration: (data) => calibrationRepo.save(data),
     getCalibrationHistory: (equipmentId) => calibrationRepo.getByEquipmentId(equipmentId),
+    updateCalibrationHeader: (id, clientId, createdAt) => calibrationRepo.updateHeader(id, clientId, createdAt),
     getEquipments: () => equipmentsRepo.getAll(),
     createEquipment: (op, ns, name) => equipmentsRepo.create(op, ns, name),
+    updateEquipment: (id, op, ns, name) => equipmentsRepo.update(id, op, ns, name),
+    deleteEquipment: (id) => equipmentsRepo.delete(id),
     getClients: () => clientsRepo.getAll(),
-    createClient: (company, cnpj, email) => clientsRepo.create(company, cnpj, email),
+    createClient: (company, cnpj, email, adress, city) => clientsRepo.create(company, cnpj, email, adress, city),
+    updateClient: (id, company, cnpj, email, adress, city) => clientsRepo.update(id, company, cnpj, email, adress, city),
+    deleteClient: (id) => clientsRepo.delete(id),
     getTemplates: () => templatesRepo.getAll(),
     getTemplateById: (id) => templatesRepo.getById(id),
     createTemplate: (template) => templatesRepo.create(template),
@@ -54,6 +61,7 @@ if (typeof window !== 'undefined' && !window.electron) {
       // Retorna no-op subscription na web convencional
       return () => {};
     },
+    getDashboardMetrics: (filters) => dashboardRepo.getMetrics(filters),
     on: (_channel, _listener) => {},
     removeListener: (_channel, _listener) => {}
   };

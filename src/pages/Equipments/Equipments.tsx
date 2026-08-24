@@ -14,12 +14,45 @@ interface EquipmentsProps {
 
 export function Equipments({ onCalibrate }: EquipmentsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<IEquipment | null>(null);
   const [activeHistoryEquipment, setActiveHistoryEquipment] = useState<IEquipment | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { equipments, isLoading, refresh } = useEquipments();
+
+  const filteredEquipments = equipments.filter(eq => {
+    const term = searchTerm.toLowerCase();
+    const typeMatch = eq.equipment_type?.toLowerCase().includes(term) || false;
+    const nameMatch = eq.name?.toLowerCase().includes(term) || false;
+    const opMatch = eq.op?.toLowerCase().includes(term) || false;
+    const nsMatch = eq.ns?.toLowerCase().includes(term) || false;
+    return typeMatch || nameMatch || opMatch || nsMatch;
+  });
+
+  const handleEdit = (eq: IEquipment) => {
+    setSelectedEquipment(eq);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    if (window.confirm('Deseja realmente excluir este equipamento?')) {
+      try {
+        await window.electron.deleteEquipment(id);
+        refresh();
+      } catch (err: any) {
+        alert(err?.message || 'Erro ao excluir o equipamento.');
+      }
+    }
+  };
 
   const handleSuccess = () => {
     setIsModalOpen(false);
-    refresh(); // Atualizar a lista após criar
+    setSelectedEquipment(null);
+    refresh(); // Atualizar a lista após criar/editar
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setSelectedEquipment(null);
   };
 
   if (activeHistoryEquipment) {
@@ -34,7 +67,8 @@ export function Equipments({ onCalibrate }: EquipmentsProps) {
   return (
     <div className="equipments-page">
       <PageHeader 
-        title="Gerenciamento de Equipamentos" 
+        onSearch={setSearchTerm}
+        searchPlaceholder="Pesquisar por tipo, modelo, NS ou OP..."
         action={
           <Button variant="primary" onClick={() => setIsModalOpen(true)}>
             + Equipamento
@@ -50,18 +84,26 @@ export function Equipments({ onCalibrate }: EquipmentsProps) {
             <h3>Nenhum equipamento cadastrado</h3>
             <p>Utilize o botão acima para adicionar o seu primeiro equipamento.</p>
           </div>
+        ) : filteredEquipments.length === 0 ? (
+          <div className="empty-state">
+            <h3>Nenhum equipamento encontrado</h3>
+            <p>Não há nenhum equipamento que corresponda à busca "{searchTerm}".</p>
+          </div>
         ) : (
           <EquipmentTable 
-            equipments={equipments} 
+            equipments={filteredEquipments} 
             onCalibrate={onCalibrate} 
             onViewHistory={(eq) => setActiveHistoryEquipment(eq)}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
       </div>
 
       <EquipmentModal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        equipment={selectedEquipment}
+        onClose={handleClose} 
         onSuccess={handleSuccess} 
       />
     </div>
