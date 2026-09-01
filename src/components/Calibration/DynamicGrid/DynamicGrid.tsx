@@ -15,6 +15,11 @@ interface DynamicGridProps {
     value: string
   ) => void;
   getPointCalculations: (sectionIndex: number, pointIndex: number) => any;
+  isCorrectionApplied?: boolean;
+  onToggleCorrection?: (val: boolean) => void;
+  scaleMode?: 'point' | 'scale';
+  scaleValue?: number;
+  onUpdateScaleMode?: (sectionIndex: number, mode: 'point' | 'scale', scaleValue?: number) => void;
 }
 
 interface GridInputProps {
@@ -63,7 +68,12 @@ export function DynamicGrid({
   sectionIndex,
   gridState,
   updateCell,
-  getPointCalculations
+  getPointCalculations,
+  isCorrectionApplied = false,
+  onToggleCorrection,
+  scaleMode = 'point',
+  scaleValue,
+  onUpdateScaleMode
 }: DynamicGridProps) {
   
   const cyclesArray = Array.from({ length: section.cyclesCount }, (_, i) => i);
@@ -71,7 +81,47 @@ export function DynamicGrid({
 
   return (
     <div className="dynamic-grid-card">
-      <h3 className="grid-section-title">{section.name}</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingRight: '8px' }}>
+        <h3 className="grid-section-title" style={{ margin: 0, padding: 0 }}>{section.name}</h3>
+        <div className="section-controls" style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          {onToggleCorrection && section.standard_id && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <input
+              type="checkbox"
+              id={`correction-${sectionIndex}`}
+              checked={isCorrectionApplied}
+              onChange={(e) => onToggleCorrection(e.target.checked)}
+              style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+            />
+            <label htmlFor={`correction-${sectionIndex}`} style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', fontWeight: 500 }}>
+              Erro Referencial (RBC)
+            </label>
+          </div>
+        )}
+          <div className="scale-mode-control" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <label style={{ fontSize: '14px', fontWeight: 500, color: '#333' }}>Tolerância:</label>
+            <select 
+              className="form-input" 
+              style={{ width: 'auto', padding: '4px 8px' }}
+              value={scaleMode}
+              onChange={(e) => onUpdateScaleMode && onUpdateScaleMode(sectionIndex, e.target.value as 'point' | 'scale', scaleValue)}
+            >
+              <option value="point">Por Ponto</option>
+              <option value="scale">Fundo de Escala</option>
+            </select>
+            {scaleMode === 'scale' && (
+              <input 
+                type="number" 
+                className="form-input" 
+                style={{ width: '100px', padding: '4px 8px' }}
+                placeholder="Valor F.E."
+                value={scaleValue || ''}
+                onChange={(e) => onUpdateScaleMode && onUpdateScaleMode(sectionIndex, 'scale', parseFloat(e.target.value) || undefined)}
+              />
+            )}
+          </div>
+        </div>
+      </div>
       
       <div className="grid-table-wrapper">
         <table className="dynamic-table">

@@ -20,10 +20,11 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     setSelectedTemplateId,
 
     templateDetail,
-    operatorRef,
+    locationRef,
     temperatureRef,
     humidityRef,
     mainsVoltageRef,
+    observationsRef,
     gridState,
     updateCell,
     getPointCalculations,
@@ -33,8 +34,10 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
     clients,
     selectedClientId,
     setSelectedClientId,
-    applyStandardCorrection,
-    setApplyStandardCorrection
+    sectionCorrections,
+    toggleSectionCorrection,
+      sectionScaleModes,
+      updateSectionScaleMode
   } = useCalibrationWorkspace({ currentUser, equipment, onSuccess: onBack });
 
   const struct = templateDetail
@@ -83,20 +86,6 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
             </div>
           </div>
 
-          <div className="correction-banner">
-            <div className="correction-banner-row">
-              <input
-                type="checkbox"
-                id="applyCorrection"
-                className="correction-checkbox"
-                checked={applyStandardCorrection}
-                onChange={(e) => setApplyStandardCorrection(e.target.checked)}
-              />
-              <label htmlFor="applyCorrection" className="correction-label">
-                Aplicar Correção dos Padrões RBC (Compensar erros do certificado nas leituras)
-              </label>
-            </div>
-          </div>
         </div>
 
         {selectedTemplateId && templateDetail && (
@@ -125,14 +114,14 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
               </div>
               <div className="form-group-row">
                 <div className="form-group">
-                  <label htmlFor="operator">Operador / Técnico</label>
+                  <label htmlFor="location">Local / Instalação</label>
                   <input
-                    id="operator"
+                    id="location"
                     type="text"
                     className="form-input"
-                    ref={operatorRef}
-                    defaultValue={currentUser?.name || ''}
-                    placeholder="Nome do técnico"
+                    ref={locationRef}
+                    defaultValue="Laboratório de Calibração LHF"
+                    placeholder="Ex: Laboratório de Calibração LHF"
                     required
                   />
                 </div>
@@ -177,9 +166,21 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
                   </div>
                 )}
               </div>
-            </div>
+                <div className="form-row" style={{ marginTop: '15px' }}>
+                  <div className="form-group size-full" style={{ width: '100%' }}>
+                    <label htmlFor="observations">Observações (opcional)</label>
+                    <textarea
+                      id="observations"
+                      className="form-input"
+                      ref={observationsRef}
+                      placeholder="Descreva quaisquer peculiaridades, ressalvas ou anomalias encontradas durante o ensaio."
+                      style={{ resize: 'vertical', minHeight: '80px', width: '100%', fontFamily: 'inherit' }}
+                    />
+                  </div>
+                </div>
+              </div>
 
-            {/* Grades de medição */}
+              {/* Grades de medição */}
             <div className="grids-container">
               {struct.map((section: any, sIdx: number) => (
                 <DynamicGrid
@@ -189,6 +190,11 @@ export function CalibrationWorkspace({ currentUser, equipment, onBack }: Calibra
                   gridState={gridState}
                   updateCell={updateCell}
                   getPointCalculations={getPointCalculations}
+                  isCorrectionApplied={sectionCorrections[sIdx] || false}
+                  onToggleCorrection={(val) => toggleSectionCorrection(sIdx, val)}
+                  scaleMode={sectionScaleModes[sIdx]?.mode}
+                  scaleValue={sectionScaleModes[sIdx]?.scaleValue}
+                  onUpdateScaleMode={updateSectionScaleMode}
                 />
               ))}
             </div>

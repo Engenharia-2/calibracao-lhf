@@ -4,7 +4,7 @@ import { ReadonlyCalibrationGrid, ReadonlySection } from '../../Calibration/Read
 import { Button } from '../../ui/Button/Button';
 import { Modal } from '../../ui/Modal/Modal';
 import { PageHeader } from '../../ui/PageHeader/PageHeader';
-import { PDFDownloadLink } from '@react-pdf/renderer';
+import { pdf } from '@react-pdf/renderer';
 import { CalibrationPDFDocument } from '../../Calibration/CalibrationPDFDocument/CalibrationPDFDocument';
 import { EquipmentInfo } from '../EquipmentInfo/EquipmentInfo';
 import './EquipmentHistory.css';
@@ -44,8 +44,42 @@ export interface CalibrationRecord {
 
 export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
   const [selectedRecord, setSelectedRecord] = useState<CalibrationRecord | null>(null);
+  const [isPdfGenerating, setIsPdfGenerating] = useState<number | null>(null);
 
   // Hook de busca e atualizacao do historico
+  const handleDownloadPdf = async (rec: CalibrationRecord) => {
+    setIsPdfGenerating(rec.id);
+    try {
+      const doc = (
+        <CalibrationPDFDocument
+          record={rec}
+          equipmentName={equipment.name}
+          equipmentNs={equipment.ns}
+          equipmentOp={equipment.op}
+          equipmentType={equipment.equipment_type || '-'}
+          equipmentRange={equipment.measurement_range || '-'}
+        />
+      );
+
+      const blob = await pdf(doc).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      const [day, month, year] = new Date(rec.created_at).toLocaleDateString('pt-BR').split('/');
+      const yearStr = year.slice(-2);
+      link.download = `Certificado-${yearStr}${month}${day}${equipment.op}.pdf`;
+
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Erro ao gerar PDF:', err);
+      alert('Erro ao gerar certificado PDF.');
+    } finally {
+      setIsPdfGenerating(null);
+    }
+  };
+
   const { history, isLoading, error, refreshHistory } = useEquipmentHistory(equipment.id);
 
   // Hook de edicao de metadados da calibracao
@@ -144,29 +178,14 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
                         >
                           Visualizar Planilha
                         </Button>
-                        <PDFDownloadLink
-                          document={
-                            <CalibrationPDFDocument
-                              record={rec}
-                              equipmentName={equipment.name}
-                              equipmentNs={equipment.ns}
-                              equipmentOp={equipment.op}
-                              equipmentType={equipment.equipment_type || '-'}
-                              equipmentRange={equipment.measurement_range || '-'}
-                            />
-                          }
-                          fileName={`Certificado-${(() => {
-                            const [day, month, year] = new Date(rec.created_at).toLocaleDateString('pt-BR').split('/');
-                            return `${year.slice(-2)}${month}${day}`;
-                          })()}${equipment.op}.pdf`}
-                          style={{ textDecoration: 'none' }}
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          disabled={isPdfGenerating === rec.id}
+                          onClick={() => handleDownloadPdf(rec)}
                         >
-                          {({ loading }) => (
-                            <Button size="sm" variant="outline" disabled={loading}>
-                              {loading ? '...' : 'PDF'}
-                            </Button>
-                          )}
-                        </PDFDownloadLink>
+                          {isPdfGenerating === rec.id ? 'Gerando...' : 'PDF'}
+                        </Button>
                       </td>
                     </tr>
                   ))}

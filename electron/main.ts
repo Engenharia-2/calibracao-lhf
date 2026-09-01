@@ -18,6 +18,20 @@ let win: BrowserWindow | null
 
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
+// --- INJEÇÃO DE AUTENTICAÇÃO JWT ---
+let globalAuthToken: string | null = null;
+const originalFetch = global.fetch;
+global.fetch = async (url: RequestInfo | URL, init?: RequestInit) => {
+  if (globalAuthToken && typeof url === 'string' && url.includes(process.env.VITE_API_BASE_URL || '3002')) {
+    init = init || {};
+    const newHeaders = new Headers(init.headers);
+    newHeaders.set('Authorization', `Bearer ${globalAuthToken}`);
+    init.headers = newHeaders;
+  }
+  return originalFetch(url, init);
+};
+// -----------------------------------
+
 // Initialize Auth Service
 const authRepository = new ApiAuthRepository()
 const authService = new AuthService(authRepository)
@@ -42,7 +56,11 @@ const dashboardRepository = new ApiDashboardRepository()
 
 // Setup IPC handlers
 ipcMain.handle('auth:login', async (_, email, password) => {
-  return authService.login(email, password)
+  const result = await authService.login(email, password);
+  if (result.success && result.token) {
+    globalAuthToken = result.token;
+  }
+  return result;
 })
 
 ipcMain.handle('auth:register', async (_, name, email, password, signatureBase64) => {

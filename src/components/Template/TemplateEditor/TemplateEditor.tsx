@@ -16,6 +16,7 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
     templateIdRef,
     nameRef,
     toleranceRef,
+    procedureRef,
     equipmentType,
     setEquipmentType,
 
@@ -113,21 +114,34 @@ export function TemplateEditor({ id, onBack }: TemplateEditorProps) {
             </div>
             <div className="form-group">
               <label htmlFor="tolerance">Tolerância Máxima Permitida (MPE %)</label>
-              <input
-                id="tolerance"
-                type="number"
-                step="0.01"
-                className="form-input"
-                ref={toleranceRef}
-                defaultValue="5.0"
-                placeholder="Ex: 5"
-                disabled={isLoading}
-                required
-              />
-            </div>
+                              <input
+                  id="tolerance"
+                  type="number"
+                  step="0.01"
+                  className="form-input"
+                  ref={toleranceRef}
+                  defaultValue="5.0"
+                  placeholder="Ex: 5"
+                  disabled={isLoading}
+                  required
+                />
+              </div>
 
+            </div>
+            
+            <div className="form-group-row" style={{ marginTop: '16px' }}>
+              <div className="form-group" style={{ width: '100%' }}>
+                <label htmlFor="procedureText">Procedimento de Calibração (Opcional)</label>
+                <textarea
+                  id="procedureText"
+                  className="form-input"
+                  ref={procedureRef}
+                  placeholder="Descreva o procedimento técnico de medição..."
+                  style={{ minHeight: '80px', resize: 'vertical' }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
 
         <div className="sections-container">
           <div className="sections-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>

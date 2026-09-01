@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Image, Font, Link } from '@react-pdf/renderer';
+﻿import { Document, Page, Text, View, StyleSheet, Image, Font, Link } from '@react-pdf/renderer';
 import { LHF_LOGO_BASE64 } from '../../../utils/logoBase64';
 import { ROBOTO_REGULAR_BASE64, ROBOTO_BOLD_BASE64 } from '../../../utils/robotoBase64';
 
@@ -20,6 +20,9 @@ interface PDFPoint {
   uncertaintyExpanded?: number;
   tolerance: number;
   status: string;
+  resolution?: string | number;
+  cycles?: Record<string, any>;
+  kFactor?: number | string;
 }
 
 interface PDFSection {
@@ -47,6 +50,9 @@ interface PDFRecord {
   started_at: string | null;
   created_at: string;
   client_company?: string | null;
+  observations?: string | null;
+  template_procedure?: string | null;
+  location?: string | null;
   client_cnpj?: string | null;
   client_email?: string | null;
   client_adress?: string | null;
@@ -75,7 +81,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Roboto',
     fontSize: 9,
     color: '#333333',
-    lineHeight: 1.4,
   },
   headerContainer: {
     borderBottomWidth: 2,
@@ -200,6 +205,19 @@ const styles = StyleSheet.create({
     color: '#C5221F',
     fontWeight: 'bold',
   },
+  pageNumber: {
+    position: 'absolute',
+    bottom: 50,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 8,
+    color: '#777777',
+    borderTopWidth: 1,
+    borderTopColor: '#EAEAEA',
+    paddingTop: 5,
+    marginHorizontal: 40,
+  },
   footerNotes: {
     fontSize: 7,
     color: '#777777',
@@ -230,6 +248,21 @@ const styles = StyleSheet.create({
     color: '#666666',
   }
 });
+
+
+function getDecimalPlaces(resolution?: number | string | null): number | undefined {
+  if (resolution === undefined || resolution === null || resolution === '') return undefined;
+  const resStr = String(resolution).replace(',', '.');
+  if (!resStr.includes('.')) return 0;
+  return resStr.split('.')[1].length;
+}
+
+function formatWithResolution(value: any, decs: number | undefined): string {
+  if (value === undefined || value === null || value === '' || value === '-') return '-';
+  const num = Number(String(value).replace(',', '.'));
+  if (isNaN(num)) return String(value);
+  return decs !== undefined ? num.toFixed(decs) : String(num);
+}
 
 export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equipmentOp, equipmentType, equipmentRange }: CalibrationPDFDocumentProps) {
   const rangeStr = equipmentRange || 'N/A';
@@ -349,7 +382,7 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
             <Text style={styles.sectionTitle}>Condições Ambientais</Text>
             <View style={styles.rowItem}>
               <Text style={styles.rowLabel}>Local:</Text>
-              <Text style={styles.rowVal}>Laboratório de Calibração LHF</Text>
+              <Text style={styles.rowVal}>{record.location || 'Laboratório de Calibração LHF'}</Text>
             </View>
             <View style={styles.rowItem}>
               <Text style={styles.rowLabel}>Temperatura:</Text>
@@ -405,6 +438,14 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
           </View>
         </View>
 
+        {/* Procedimento da Calibração */}
+        {record.template_procedure && (
+          <View style={{ marginBottom: 15, padding: 8, backgroundColor: '#f1f5f9', borderRadius: 4 }}>
+            <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#0F398C', marginBottom: 3 }}>Procedimento da Calibração:</Text>
+            <Text style={{ fontSize: 8, color: '#333333', lineHeight: 1.4 }}>{record.template_procedure}</Text>
+          </View>
+        )}
+
         {/* Resultados da Calibração */}
         {record.readings && record.readings.map((sec, sIdx) => {
           const sectionContent = (
@@ -415,34 +456,54 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
               
               <View style={styles.table}>
                 {/* Header da Tabela */}
-                <View style={styles.tableHeader}>
-                  <Text style={[styles.th, styles.colTarget]}>Valor Alvo</Text>
-                  <Text style={[styles.th, styles.colStandard]}>SMP (Média Padrão)</Text>
-                  <Text style={[styles.th, styles.colEquipment]}>SMC (Média Equip.)</Text>
-                  <Text style={[styles.th, styles.colDeviation]}>Desvio</Text>
-                  <Text style={[styles.th, styles.colUncertainty]}>Incerteza (U)</Text>
-                </View>
-
-                {/* Linhas da Tabela */}
-                {sec.points && sec.points.map((pt, pIdx) => (
-                  <View key={pIdx} style={styles.tableRow}>
-                    <Text style={[styles.td, styles.colTarget, styles.boldText]}>
-                      {pt.targetValue} {pt.unit}
-                    </Text>
-                    <Text style={[styles.td, styles.colStandard]}>
-                      {pt.averageStandard} {pt.unit}
-                    </Text>
-                    <Text style={[styles.td, styles.colEquipment]}>
-                      {pt.averageEquipment} {pt.unit}
-                    </Text>
-                    <Text style={[styles.td, styles.colDeviation, styles.boldText]}>
-                      {pt.deviation} {pt.unit}
-                    </Text>
-                    <Text style={[styles.td, styles.colUncertainty]}>
-                      {pt.uncertaintyExpanded !== undefined ? `${pt.uncertaintyExpanded} ${pt.unit}` : '-'}
-                    </Text>
+                  <View style={styles.tableHeader}>
+                    <Text style={[styles.th, { flex: 1.5 }]}>Ponto</Text>
+                    <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>SMP</Text>
+                    <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>SMC</Text>
+                    <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>Desvio</Text>
+                    <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>Incert.(U)</Text>
+                    <Text style={[styles.th, { flex: 0.5, textAlign: 'center' }]}>k</Text>
+                    {sec.points && sec.points.length > 0 && sec.points[0].cycles && Object.keys(sec.points[0].cycles).map((_, i) => (
+                      <Text key={i} style={[styles.th, { flex: 1, textAlign: 'center' }]}>Leitura {i + 1}</Text>
+                    ))}
                   </View>
-                ))}
+  
+                  {/* Linhas da Tabela */}
+                  {sec.points && sec.points.map((pt: any, pIdx: number) => {
+                    const decs = getDecimalPlaces(pt.resolution);
+                    const cyclesKeys = pt.cycles ? Object.keys(pt.cycles) : [];
+                    return (
+                    <View key={pIdx} style={styles.tableRow}>
+                      <Text style={[styles.td, { flex: 1.5 }, styles.boldText]}>
+                        {pt.group ? pt.group : `Ponto ${pIdx + 1}`}
+                      </Text>
+                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
+                        {pt.averageStandard !== undefined && pt.averageStandard !== null ? `${pt.averageStandard} ${pt.unit || ''}`.trim() : '-'}
+                      </Text>
+                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
+                        {pt.averageEquipment !== undefined && pt.averageEquipment !== null && pt.averageEquipment !== '' ? `${formatWithResolution(pt.averageEquipment, decs)} ${pt.unit || ''}`.trim() : '-'}
+                      </Text>
+                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }, styles.boldText]}>
+                        {pt.deviation !== undefined && pt.deviation !== null && pt.deviation !== '' ? `${formatWithResolution(pt.deviation, decs)} ${pt.unit || ''}`.trim() : '-'}
+                      </Text>
+                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
+                        {pt.uncertaintyExpanded !== undefined && pt.uncertaintyExpanded !== null && pt.uncertaintyExpanded !== '' ? `${Number(String(pt.uncertaintyExpanded).replace(',','.')).toFixed(2)} ${pt.unit || ''}`.trim() : '-'}
+                      </Text>
+                      <Text style={[styles.td, { flex: 0.5, textAlign: 'center' }]}>
+                        {pt.kFactor !== undefined && pt.kFactor !== null ? pt.kFactor : 2}
+                      </Text>
+                      {cyclesKeys.map((cKey, cIdx) => {
+                        const cycle = pt.cycles[cKey];
+                        return (
+                          <Text key={cIdx} style={[styles.td, { flex: 1, textAlign: 'center' }]}>
+                            {cycle && cycle.equipment !== undefined && cycle.equipment !== null && cycle.equipment !== '' 
+                              ? formatWithResolution(cycle.equipment, decs) 
+                              : '-'}
+                          </Text>
+                        );
+                      })}
+                    </View>
+                  )})}
               </View>
             </View>
           );
@@ -465,8 +526,16 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
           Os resultados apresentados referem-se exclusivamente ao equipamento identificado e nas condições ambientais registradas.
         </Text>
 
+        {/* Observações da Calibração */}
+        {record.observations && (
+          <View style={{ marginTop: 15, padding: 8, backgroundColor: '#f9f9f9', borderLeftWidth: 3, borderLeftColor: '#0F398C' }}>
+            <Text style={{ fontSize: 9, fontWeight: 'bold', color: '#0F398C', marginBottom: 3 }}>Observações:</Text>
+            <Text style={{ fontSize: 8, color: '#333333', lineHeight: 1.4 }}>{record.observations}</Text>
+          </View>
+        )}
+
         {/* Assinatura */}
-        <View style={styles.signatureContainer} wrap={false}>
+        <View style={[styles.signatureContainer, { justifyContent: 'center' }]} wrap={false}>
           <View style={styles.signatureBox}>
             {record.operator_signature_url ? (
               <Image src={record.operator_signature_url} style={{ width: 120, height: 40, objectFit: 'contain' }} />
@@ -477,13 +546,14 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
             <Text style={styles.signatureText}>Técnico Responsável</Text>
             <Text style={[styles.signatureText, { fontWeight: 'bold' }]}>{record.operator}</Text>
           </View>
-          <View style={styles.signatureBox}>
-            <View style={{ height: 40 }} />
-            <View style={styles.signatureLine} />
-            <Text style={styles.signatureText}>LHF Sistemas de Teste e Medição</Text>
-            <Text style={styles.signatureText}>Controle de Qualidade</Text>
-          </View>
-        </View>
+                </View>
+
+        {/* Paginação */}
+        <Text 
+          style={styles.pageNumber} 
+          render={({ pageNumber, totalPages }) => (`Página ${pageNumber} de ${totalPages}`)} 
+          fixed 
+        />
       </Page>
     </Document>
   );

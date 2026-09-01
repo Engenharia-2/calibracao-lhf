@@ -43,7 +43,8 @@ export const calculatePointMetrology = (
   sectionIndex: number,
   pointIndex: number,
   sectionData: any, // Pode tipar melhor com GridState depois
-  applyStandardCorrection: boolean = false
+  applyStandardCorrection: boolean = false,
+  scaleConfig?: { mode: 'point' | 'scale', scaleValue?: number }
 ) => {
   if (!templateDetail) return null;
   
@@ -130,7 +131,11 @@ export const calculatePointMetrology = (
   const u_expanded = round(u_c * 2, 6);
 
   // 5. Tolerância Permetida MPE e Aprovação (|Desvio| + U <= MPE)
-  const tolerance = round(Math.abs(averageStandard) * (templateDetail.tolerance / 100), 6);
+  const baseValue = (scaleConfig && scaleConfig.mode === 'scale' && scaleConfig.scaleValue) 
+    ? scaleConfig.scaleValue 
+    : Math.abs(averageStandard);
+  
+  const tolerance = round(baseValue * (templateDetail.tolerance / 100), 6);
   const status = (Math.abs(deviation) + u_expanded) <= tolerance ? 'Aprovado' : 'Reprovado';
 
   return {

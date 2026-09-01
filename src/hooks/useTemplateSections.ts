@@ -64,6 +64,18 @@ export function useTemplateSections(initialSections: ITemplateSection[] = []) {
     }));
   };
 
+  const movePointInSection = (sectionIndex: number, dragIndex: number, dropIndex: number) => {
+    setSections(sections.map((sec, index) => {
+      if (index === sectionIndex) {
+        const updatedPoints = [...sec.points];
+        const [movedItem] = updatedPoints.splice(dragIndex, 1);
+        updatedPoints.splice(dropIndex, 0, movedItem);
+        return { ...sec, points: updatedPoints };
+      }
+      return sec;
+    }));
+  };
+
   const updatePointInSection = (sectionIndex: number, pointIndex: number, fields: Partial<ITemplatePoint>) => {
     setSections(sections.map((sec, index) => {
       if (index === sectionIndex) {
@@ -90,6 +102,7 @@ export function useTemplateSections(initialSections: ITemplateSection[] = []) {
     addPointToSection,
     removePointFromSection,
     updatePointInSection,
+    movePointInSection,
     generateUniqueId
   };
 }

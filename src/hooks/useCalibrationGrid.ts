@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { ICalibrationTemplate, ITemplateSection } from '../services/templates/ApiTemplatesRepository';
 import { IReferenceStandard, IStandardPoint } from '../services/standards/ApiStandardsRepository';
+import { matchStandardPoint } from '../core/domain/metrology';
 
 export interface GridState {
   [sectionIndex: number]: {
@@ -41,7 +42,7 @@ export function generateAutoFilledGrid(template: ICalibrationTemplate, standards
     section.points.forEach((point, pIdx) => {
       if (!nextGrid[sIdx][pIdx]) nextGrid[sIdx][pIdx] = {};
       
-      const rbcPoint = parsedPoints.find(p => Math.abs(p.nominalValue - point.targetValue) < 0.0001) || null;
+      const rbcPoint = matchStandardPoint(parsedPoints, point, section.defaultUnit);
       const refVal = rbcPoint ? String(rbcPoint.referenceValue) : String(point.targetValue);
 
       for (let c = 0; c < section.cyclesCount; c++) {

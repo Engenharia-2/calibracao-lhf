@@ -27,16 +27,26 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
   const [standards, setStandards] = useState<IReferenceStandard[]>([]);
 
   // Dados ambientais usando refs
-  const operatorRef = useRef<HTMLInputElement>(null);
+  const locationRef = useRef<HTMLInputElement>(null);
   const temperatureRef = useRef<HTMLInputElement>(null);
   const humidityRef = useRef<HTMLInputElement>(null);
   const mainsVoltageRef = useRef<HTMLInputElement>(null);
+  const observationsRef = useRef<HTMLTextAreaElement>(null);
   const [startedAt, setStartedAt] = useState<string | null>(null);
 
   // Clientes
   const [clients, setClients] = useState<IClient[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<number | string>('');
-  const [applyStandardCorrection, setApplyStandardCorrection] = useState(false);
+  const [sectionCorrections, setSectionCorrections] = useState<Record<number, boolean>>({});
+  const [sectionScaleModes, setSectionScaleModes] = useState<Record<number, { mode: 'point' | 'scale', scaleValue?: number }>>({});
+  
+  const updateSectionScaleMode = (sectionIndex: number, mode: 'point' | 'scale', scaleValue?: number) => {
+    setSectionScaleModes(prev => ({ ...prev, [sectionIndex]: { mode, scaleValue } }));
+  };
+
+  const toggleSectionCorrection = (sectionIndex: number, value: boolean) => {
+    setSectionCorrections(prev => ({ ...prev, [sectionIndex]: value }));
+  };
 
   const { gridState, setGridState, updateCell, generateAutoFilledGrid } = useCalibrationGrid();
   
@@ -45,10 +55,10 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
 
   // Sincroniza o operador se o usuário estiver disponível
   useEffect(() => {
-    if (currentUser?.name && operatorRef.current && !operatorRef.current.value) {
-      operatorRef.current.value = currentUser.name;
+    if (locationRef.current) {
+      console.log('locationRef value mudou:', locationRef.current.value);
     }
-  }, [currentUser]);
+  }, [locationRef]);
 
   // Buscar os modelos de formulário e os padrões de referência
   useEffect(() => {
@@ -140,7 +150,8 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
       : templateDetail.structure;
     const sec = struct[sectionIndex];
     const sectionStandard = standards.find(s => s.id === sec.standard_id) || null;
-    return calculatePointMetrology(templateDetail, sectionStandard, sectionIndex, pointIndex, sectionData, applyStandardCorrection);
+    const scaleConfig = sectionScaleModes[sectionIndex];
+      return calculatePointMetrology(templateDetail, sectionStandard, sectionIndex, pointIndex, sectionData, sectionCorrections[sectionIndex] || false, scaleConfig);
   };
 
   // Submeter a calibração finalizada
@@ -148,13 +159,15 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
     e.preventDefault();
     setError(null);
 
-    const operator = operatorRef.current?.value || '';
+    const location = locationRef.current?.value || 'Laboratório de Calibração LHF';
+    const operator = currentUser?.name || 'Técnico Desconhecido';
     const temperature = temperatureRef.current?.value || '';
     const humidity = humidityRef.current?.value || '';
     const mainsVoltage = mainsVoltageRef.current?.value || '';
+    const observations = observationsRef.current?.value || '';
 
-    if (!selectedTemplateId || !operator || !temperature || !humidity) {
-      setError('Por favor, preencha o Operador e as Condições Ambientais.');
+    if (!selectedTemplateId || !temperature || !humidity) {
+      setError('Por favor, preencha as Condições Ambientais.');
       return;
     }
 
@@ -178,7 +191,7 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
           for (let c = 0; c < section.cyclesCount; c++) {
             const rawRow = gridState[sIdx]?.[pIdx]?.[c] || {};
             const row = { ...rawRow };
-            if (applyStandardCorrection && sectionStandard) {
+            if (sectionCorrections[sIdx] && sectionStandard) {
               let parsedPoints: IStandardPoint[] = [];
               if (typeof sectionStandard.points === 'string') {
                 try { parsedPoints = JSON.parse(sectionStandard.points); } catch(e) {}
@@ -201,6 +214,7 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
             group: point.group,
             targetValue: point.targetValue,
             unit: point.unit || section.defaultUnit,
+            resolution: point.resolution,
             cycles: cyclesData,
             ...calcs
           };
@@ -209,7 +223,10 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
         return {
           sectionName: section.name,
           standard: sectionStandard ? { id: sectionStandard.id, code: sectionStandard.code, name: sectionStandard.name, certificate_number: sectionStandard.certificate_number } : null,
-          points: pointsResults
+          applyCorrection: sectionCorrections[sIdx] || false,
+            scaleMode: sectionScaleModes[sIdx]?.mode || 'point',
+            scaleValue: sectionScaleModes[sIdx]?.scaleValue || null,
+            points: pointsResults
         };
       });
 
@@ -219,13 +236,15 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
         templateId: selectedTemplateId,
         standardId: null,
         operator,
+        location,
         temperature: parseNumber(temperature),
         humidity: parseNumber(humidity),
         mainsVoltage: mainsVoltage ? parseNumber(mainsVoltage) : null,
+        observations,
         readings: resultsBySection,
         overallStatus,
         startedAt: startedAt || new Date().toISOString(),
-        applyStandardCorrection,
+        applyStandardCorrection: false,
         operator_signature_url: currentUser?.signatureUrl || null
       };
 
@@ -239,11 +258,13 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
           id: savedResult?.id || Date.now(),
           created_at: savedResult?.created_at || new Date().toISOString(),
           template_name: templateDetail?.name || '',
+          template_procedure: templateDetail?.procedure_text || null,
           client_company: clientDetail?.company || null,
           client_cnpj: clientDetail?.cnpj || null,
           client_email: clientDetail?.email || null,
           client_adress: clientDetail?.adress || null,
           client_city: clientDetail?.city || null,
+          observations,
           standard_code: null,
           standard_name: null,
           standard_certificate: null,
@@ -298,10 +319,11 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
     setSelectedTemplateId,
     standards,
     templateDetail,
-    operatorRef,
+    locationRef,
     temperatureRef,
     humidityRef,
     mainsVoltageRef,
+    observationsRef,
     gridState,
     updateCell,
     getPointCalculations: getPointCalculationsWrapper,
@@ -311,7 +333,9 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
     clients,
     selectedClientId,
     setSelectedClientId,
-    applyStandardCorrection,
-    setApplyStandardCorrection
+    sectionCorrections,
+    toggleSectionCorrection,
+    sectionScaleModes,
+    updateSectionScaleMode
   };
 }

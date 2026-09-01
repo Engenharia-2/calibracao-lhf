@@ -47,7 +47,11 @@ export class ApiDashboardRepository {
 
     const queryStr = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(`${this.apiUrl}/metrics${queryStr}`);
-    if (!response.ok) throw new Error('Falha ao buscar métricas da dashboard');
+    if (!response.ok) {
+      const errTxt = await response.text();
+      console.error('[ApiDashboard] HTTP ERROR:', response.status, errTxt);
+      throw new Error(`Falha ao buscar métricas da dashboard: Status ${response.status} - ${errTxt}`);
+    }
     const data = await response.json();
     return data.data;
   }

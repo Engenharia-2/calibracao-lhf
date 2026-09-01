@@ -34,7 +34,19 @@ export class ApiCalibrationRepository {
         throw new Error(`Falha ao buscar histórico: ${response.statusText}`);
       }
       const result = await response.json();
-      return result.data;
+      
+      const parsedData = (result.data || []).map((rec: any) => {
+        if (typeof rec.readings === 'string') {
+          try {
+            rec.readings = JSON.parse(rec.readings);
+          } catch (e) {
+            rec.readings = [];
+          }
+        }
+        return rec;
+      });
+
+      return parsedData;
     } catch (error) {
       console.error('Erro ao buscar histórico de calibração:', error);
       throw error;

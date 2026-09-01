@@ -29,6 +29,7 @@ export interface ICalibrationTemplate {
   tolerance: number;
   default_standard_id?: number | null;
   structure: ITemplateSection[] | string;
+  procedure_text?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -38,7 +39,11 @@ export class ApiTemplatesRepository {
 
   async getAll(): Promise<ICalibrationTemplate[]> {
     const response = await fetch(this.apiUrl);
-    if (!response.ok) throw new Error('Falha ao buscar templates');
+    if (!response.ok) {
+      const errTxt = await response.text();
+      console.error('[ApiTemplates] HTTP ERROR:', response.status, errTxt);
+      throw new Error(`Falha ao buscar templates: Status ${response.status} - ${errTxt}`);
+    }
     const data = await response.json();
     return data.data;
   }

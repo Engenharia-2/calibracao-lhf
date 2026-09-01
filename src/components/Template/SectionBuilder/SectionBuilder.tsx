@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ITemplateSection, ITemplatePoint } from '../../../services/templates/ApiTemplatesRepository';
 import { IReferenceStandard } from '../../../services/standards/ApiStandardsRepository';
 import { Button } from '../../ui/Button/Button';
 import { UnitSelect } from '../../ui/UnitSelect/UnitSelect';
+import { GripVertical } from 'lucide-react';
 import './SectionBuilder.css';
 
 interface SectionBuilderProps {
@@ -14,6 +15,7 @@ interface SectionBuilderProps {
   onAddPoint: () => void;
   onRemovePoint: (pointIndex: number) => void;
   onUpdatePoint: (pointIndex: number, fields: Partial<ITemplatePoint>) => void;
+  onMovePoint?: (dragIndex: number, dropIndex: number) => void;
   onStandardSelect?: (idVal: string | number) => void;
   onSyncStandard?: () => void;
 }
@@ -27,9 +29,41 @@ export function SectionBuilder({
   onAddPoint,
   onRemovePoint,
   onUpdatePoint,
+  onMovePoint,
   onStandardSelect,
   onSyncStandard
 }: SectionBuilderProps) {
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== dropIndex && onMovePoint) {
+      onMovePoint(draggedIndex, dropIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   const renderCount = useRef(0);
   renderCount.current += 1;
@@ -121,6 +155,7 @@ export function SectionBuilder({
           <table className="points-builder-table">
             <thead>
               <tr>
+                <th style={{ width: '32px', textAlign: 'center' }}></th>
                 <th>Grupo / Escala (Opcional)</th>
                 <th>Valor Alvo (Nominal)</th>
                 <th>Resolução</th>
@@ -130,7 +165,19 @@ export function SectionBuilder({
             </thead>
             <tbody>
               {section.points.map((point, pIdx) => (
-                <tr key={`${point.id || pIdx}-${point.targetValue}-${point.unit}-${point.resolution}`}>
+                <tr 
+                  key={`${point.id || pIdx}-${point.targetValue}-${point.unit}-${point.resolution}`}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, pIdx)}
+                  onDragOver={(e) => handleDragOver(e, pIdx)}
+                  onDrop={(e) => handleDrop(e, pIdx)}
+                  onDragEnd={handleDragEnd}
+                  className={dragOverIndex === pIdx ? 'drag-over-row' : ''}
+                  style={{ opacity: draggedIndex === pIdx ? 0.4 : 1, transition: 'opacity 0.2s ease', cursor: 'grab' }}
+                >
+                  <td style={{ textAlign: 'center', color: '#94a3b8', verticalAlign: 'middle', cursor: 'grab' }}>
+                    <GripVertical size={16} />
+                  </td>
                   <td>
                     <input
                       type="text"

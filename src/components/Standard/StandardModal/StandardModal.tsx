@@ -3,6 +3,7 @@ import { Modal } from '../../ui/Modal/Modal';
 import { Button } from '../../ui/Button/Button';
 import { IReferenceStandard, IStandardPoint } from '../../../services/standards/ApiStandardsRepository';
 import { UnitSelect } from '../../ui/UnitSelect/UnitSelect';
+import { GripVertical } from 'lucide-react';
 import './StandardModal.css';
 
 interface StandardModalProps {
@@ -48,8 +49,50 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
     }
     return [ { ...defaultPoint, id: generateUniqueId() } ];
   });
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    // Firefox necessita de dataTransfer.setData para disparar drag
+    e.dataTransfer.setData('text/plain', index.toString());
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+    
+    setPoints(prev => {
+      const updated = [...prev];
+      const [movedItem] = updated.splice(draggedIndex, 1);
+      updated.splice(dropIndex, 0, movedItem);
+      return updated;
+    });
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   const handleAddPoint = () => {
     setPoints(prev => [...prev, { ...defaultPoint, id: generateUniqueId() }]);
@@ -194,6 +237,7 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
             <table className="data-table">
               <thead>
                 <tr>
+                  <th style={{ width: '32px', textAlign: 'center' }}></th>
                   <th>Seção / Escala</th>
                   <th>Nominal</th>
                   <th>Unidade</th>
@@ -206,7 +250,19 @@ export function StandardModal({ isOpen, standard, onClose, onSuccess }: Standard
               </thead>
               <tbody>
                 {points.map((p, idx) => (
-                  <tr key={p.id || idx}>
+                  <tr 
+                    key={p.id || idx}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    className={dragOverIndex === idx ? 'drag-over-row' : ''}
+                    style={{ opacity: draggedIndex === idx ? 0.4 : 1, transition: 'opacity 0.2s ease', cursor: 'grab' }}
+                  >
+                    <td style={{ textAlign: 'center', color: '#94a3b8', verticalAlign: 'middle', cursor: 'grab' }}>
+                      <GripVertical size={16} />
+                    </td>
                     <td>
                       <input
                         type="text"

@@ -14,6 +14,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
   const templateIdRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
   const toleranceRef = useRef<HTMLInputElement>(null);
+  const procedureRef = useRef<HTMLTextAreaElement>(null);
 
   const [equipmentType, setEquipmentType] = useState('SURGE');
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +30,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
     addPointToSection,
     removePointFromSection,
     updatePointInSection,
+    movePointInSection,
     generateUniqueId
   } = useTemplateSections();
 
@@ -54,6 +56,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
           if (nameRef.current) nameRef.current.value = template.name;
           setEquipmentType(template.equipment_type);
           if (toleranceRef.current) toleranceRef.current.value = String(template.tolerance);
+          if (procedureRef.current) procedureRef.current.value = template.procedure_text || '';
           
           const struct = typeof template.structure === 'string' 
             ? JSON.parse(template.structure) 
@@ -85,6 +88,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
 
     const templateId = templateIdRef.current?.value || '';
     const name = nameRef.current?.value || '';
+    const procedureText = procedureRef.current?.value || null;
     const toleranceVal = toleranceRef.current?.value ? Number(toleranceRef.current.value) : undefined;
 
     if (!templateId || !name || !equipmentType || toleranceVal === undefined) {
@@ -117,6 +121,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
         equipment_type: equipmentType,
         tolerance: toleranceVal,
         default_standard_id: null,
+        procedure_text: procedureText,
         structure: sections
       };
 
@@ -147,6 +152,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
     templateIdRef,
     nameRef,
     toleranceRef,
+    procedureRef,
     equipmentType,
     setEquipmentType,
     handleStandardSelect,
@@ -162,6 +168,7 @@ export function useTemplateForm({ id, onSuccess }: UseTemplateFormProps = {}) {
     addPointToSection,
     removePointFromSection,
     updatePointInSection,
+    movePointInSection,
     handleSubmit,
     isImportModalOpen,
     setIsImportModalOpen,
