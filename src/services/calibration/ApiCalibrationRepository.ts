@@ -3,6 +3,33 @@
 export class ApiCalibrationRepository {
   private apiUrl = `${process.env.VITE_API_BASE_URL || 'http://localhost:3002/api'}/calibration`;
 
+  
+  async getAll(): Promise<any[]> {
+    try {
+      const response = await fetch(this.apiUrl);
+      if (!response.ok) {
+        throw new Error(`Falha ao buscar todas as calibrações: ${response.statusText}`);
+      }
+      const result = await response.json();
+      
+      const parsedData = (result.data || []).map((rec: any) => {
+        if (typeof rec.readings === 'string') {
+          try {
+            rec.readings = JSON.parse(rec.readings);
+          } catch (e) {
+            rec.readings = [];
+          }
+        }
+        return rec;
+      });
+
+      return parsedData;
+    } catch (error) {
+      console.error('Erro ao buscar histórico de calibração:', error);
+      throw error;
+    }
+  }
+
   async save(data: any): Promise<any> {
     try {
       const response = await fetch(this.apiUrl, {

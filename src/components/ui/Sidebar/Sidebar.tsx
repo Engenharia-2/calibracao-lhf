@@ -7,7 +7,8 @@ import {
   FileText, 
   SquareChartGantt,
   LayoutDashboard,
-  Toolbox
+  Toolbox,
+  FolderClock
 } from 'lucide-react';
 import './Sidebar.css';
 import logoLhf from '../../../assets/logo-lhf.png';
@@ -31,6 +32,7 @@ export function Sidebar({ activePage, onNavigate }: SidebarProps) {
     { id: 'padroes', label: 'Padrões', icon: SquareChartGantt },
     { id: 'clientes', label: 'Clientes', icon: Users },
     { id: 'equipamentos', label: 'Equipamentos', icon: Toolbox },
+    { id: 'history', label: 'Histórico', icon: FolderClock },
   ];
 
   return (

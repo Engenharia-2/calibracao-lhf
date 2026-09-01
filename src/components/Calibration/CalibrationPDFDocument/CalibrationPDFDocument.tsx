@@ -538,7 +538,7 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
         <View style={[styles.signatureContainer, { justifyContent: 'center' }]} wrap={false}>
           <View style={styles.signatureBox}>
             {record.operator_signature_url ? (
-              <Image src={record.operator_signature_url} style={{ width: 120, height: 40, objectFit: 'contain' }} />
+              <Image src={record.operator_signature_url} style={{ width: 140, height: 60, objectFit: 'contain' }} />
             ) : (
               <View style={{ height: 40 }} />
             )}

@@ -1,0 +1,159 @@
+﻿
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.search-wrapper {
+  position: relative;
+  width: 24rem;
+}
+
+.search-input {
+  width: 100%;
+  padding-left: 2.5rem;
+  padding-right: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  outline: none;
+}
+.search-input:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 2px var(--color-primary-blue, #0F398C);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.625rem;
+  color: #9ca3af;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.toolbar-info {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.history-table {
+  min-width: 100%;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.history-table thead tr {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.history-table th {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-table th.right-align {
+  text-align: right;
+}
+
+.history-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.history-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.history-table td {
+  padding: 1rem 1.5rem;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.td-date, .td-title {
+  color: #111827;
+}
+
+.td-title {
+  font-weight: 500;
+}
+
+.td-subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.td-client {
+  color: #6b7280;
+}
+
+.td-actions {
+  text-align: right;
+}
+
+.status-badge {
+  display: inline-flex;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  border-radius: 9999px;
+}
+
+.status-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  background-color: var(--color-primary-blue, #0F398C);
+  color: #ffffff;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-pdf:hover:not(:disabled) {
+  background-color: var(--color-secondary-blue, #076DF2);
+}
+
+.btn-pdf:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Basic Dark mode overrides */
+:root[class~="dark"] .search-input { background-color: #374151; border-color: #4b5563; color: #ffffff; }
+:root[class~="dark"] .history-table thead tr { background-color: rgba(31, 41, 55, 0.5); border-color: #374151; }
+:root[class~="dark"] .history-table th { color: #9ca3af; }
+:root[class~="dark"] .history-table tbody tr { border-color: #374151; }
+:root[class~="dark"] .history-table tbody tr:hover { background-color: rgba(55, 65, 81, 0.5); }
+:root[class~="dark"] .td-date, :root[class~="dark"] .td-title { color: #ffffff; }
+:root[class~="dark"] .td-subtitle, :root[class~="dark"] .td-client { color: #9ca3af; }
+:root[class~="dark"] .status-approved { background-color: rgba(6, 95, 70, 0.3); color: #34d399; }
+:root[class~="dark"] .status-rejected { background-color: rgba(153, 27, 27, 0.3); color: #f87171; }

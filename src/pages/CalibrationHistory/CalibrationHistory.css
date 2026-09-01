@@ -1,0 +1,48 @@
+
+.history-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.history-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.history-card {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.history-card-body {
+  padding: 1.5rem;
+}
+
+.history-loading {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Dark Mode Overrides (Basic fallback logic, if dark mode toggles global classes) */
+:root[class~="dark"] .history-title { color: #ffffff; }
+:root[class~="dark"] .history-subtitle { color: #9ca3af; }
+:root[class~="dark"] .history-card { background-color: #1f2937; border-color: #374151; }
+:root[class~="dark"] .history-loading { color: #6b7280; }

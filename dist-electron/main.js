@@ -1,3 +1,829 @@
-var e=Object.create,t=Object.defineProperty,n=Object.getOwnPropertyDescriptor,r=Object.getOwnPropertyNames,i=Object.getPrototypeOf,a=Object.prototype.hasOwnProperty,o=(e,t)=>()=>(t||(e((t={exports:{}}).exports,t),e=null),t.exports),s=(e,i,o,s)=>{if(i&&typeof i==`object`||typeof i==`function`)for(var c=r(i),l=0,u=c.length,d;l<u;l++)d=c[l],!a.call(e,d)&&d!==o&&t(e,d,{get:(e=>i[e]).bind(null,d),enumerable:!(s=n(i,d))||s.enumerable});return e},c=(n,r,a)=>(a=n==null?{}:e(i(n)),s(r||!n||!n.__esModule?t(a,`default`,{value:n,enumerable:!0}):a,n));let l=require("electron"),u=require("node:path");u=c(u);var d=o(((e,t)=>{var n=require("fs"),r=require("path"),i=require("os"),a=require("crypto"),o=[`◈ encrypted .env [www.dotenvx.com]`,`◈ secrets for agents [www.dotenvx.com]`,`⌁ auth for agents [www.vestauth.com]`,`⌘ custom filepath { path: '/custom/path/.env' }`,`⌘ enable debugging { debug: true }`,`⌘ override existing { override: true }`,`⌘ suppress logs { quiet: true }`,`⌘ multiple files { path: ['.env.local', '.env'] }`];function s(){return o[Math.floor(Math.random()*o.length)]}function c(e){return typeof e==`string`?![`false`,`0`,`no`,`off`,``].includes(e.toLowerCase()):!!e}function l(){return process.stdout.isTTY}function u(e){return l()?`\x1b[2m${e}\x1b[0m`:e}var d=/(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm;function f(e){let t={},n=e.toString();n=n.replace(/\r\n?/gm,`
-`);let r;for(;(r=d.exec(n))!=null;){let e=r[1],n=r[2]||``;n=n.trim();let i=n[0];n=n.replace(/^(['"`])([\s\S]*)\1$/gm,`$2`),i===`"`&&(n=n.replace(/\\n/g,`
-`),n=n.replace(/\\r/g,`\r`)),t[e]=n}return t}function p(e){e||={};let t=y(e);e.path=t;let n=E.configDotenv(e);if(!n.parsed){let e=Error(`MISSING_DATA: Cannot parse ${t} for an unknown reason`);throw e.code=`MISSING_DATA`,e}let r=_(e).split(`,`),i=r.length,a;for(let e=0;e<i;e++)try{let t=v(n,r[e].trim());a=E.decrypt(t.ciphertext,t.key);break}catch(t){if(e+1>=i)throw t}return E.parse(a)}function m(e){console.error(`⚠ ${e}`)}function h(e){console.log(`┆ ${e}`)}function g(e){console.log(`◇ ${e}`)}function _(e){return e&&e.DOTENV_KEY&&e.DOTENV_KEY.length>0?e.DOTENV_KEY:process.env.DOTENV_KEY&&process.env.DOTENV_KEY.length>0?process.env.DOTENV_KEY:``}function v(e,t){let n;try{n=new URL(t)}catch(e){if(e.code===`ERR_INVALID_URL`){let e=Error(`INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development`);throw e.code=`INVALID_DOTENV_KEY`,e}throw e}let r=n.password;if(!r){let e=Error(`INVALID_DOTENV_KEY: Missing key part`);throw e.code=`INVALID_DOTENV_KEY`,e}let i=n.searchParams.get(`environment`);if(!i){let e=Error(`INVALID_DOTENV_KEY: Missing environment part`);throw e.code=`INVALID_DOTENV_KEY`,e}let a=`DOTENV_VAULT_${i.toUpperCase()}`,o=e.parsed[a];if(!o){let e=Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${a} in your .env.vault file.`);throw e.code=`NOT_FOUND_DOTENV_ENVIRONMENT`,e}return{ciphertext:o,key:r}}function y(e){let t=null;if(e&&e.path&&e.path.length>0)if(Array.isArray(e.path))for(let r of e.path)n.existsSync(r)&&(t=r.endsWith(`.vault`)?r:`${r}.vault`);else t=e.path.endsWith(`.vault`)?e.path:`${e.path}.vault`;else t=r.resolve(process.cwd(),`.env.vault`);return n.existsSync(t)?t:null}function b(e){return e[0]===`~`?r.join(i.homedir(),e.slice(1)):e}function x(e){let t=c(process.env.DOTENV_CONFIG_DEBUG||e&&e.debug),n=c(process.env.DOTENV_CONFIG_QUIET||e&&e.quiet);(t||!n)&&g(`loading env from encrypted .env.vault`);let r=E._parseVault(e),i=process.env;return e&&e.processEnv!=null&&(i=e.processEnv),E.populate(i,r,e),{parsed:r}}function S(e){let t=r.resolve(process.cwd(),`.env`),i=`utf8`,a=process.env;e&&e.processEnv!=null&&(a=e.processEnv);let o=c(a.DOTENV_CONFIG_DEBUG||e&&e.debug),l=c(a.DOTENV_CONFIG_QUIET||e&&e.quiet);e&&e.encoding?i=e.encoding:o&&h(`no encoding is specified (UTF-8 is used by default)`);let d=[t];if(e&&e.path)if(!Array.isArray(e.path))d=[b(e.path)];else{d=[];for(let t of e.path)d.push(b(t))}let f,p={};for(let t of d)try{let r=E.parse(n.readFileSync(t,{encoding:i}));E.populate(p,r,e)}catch(e){o&&h(`failed to load ${t} ${e.message}`),f=e}let m=E.populate(a,p,e);if(o=c(a.DOTENV_CONFIG_DEBUG||o),l=c(a.DOTENV_CONFIG_QUIET||l),o||!l){let e=Object.keys(m).length,t=[];for(let e of d)try{let n=r.relative(process.cwd(),e);t.push(n)}catch(t){o&&h(`failed to load ${e} ${t.message}`),f=t}g(`injected env (${e}) from ${t.join(`,`)} ${u(`// tip: ${s()}`)}`)}return f?{parsed:p,error:f}:{parsed:p}}function C(e){if(_(e).length===0)return E.configDotenv(e);let t=y(e);return t?E._configVault(e):(m(`you set DOTENV_KEY but you are missing a .env.vault file at ${t}`),E.configDotenv(e))}function w(e,t){let n=Buffer.from(t.slice(-64),`hex`),r=Buffer.from(e,`base64`),i=r.subarray(0,12),o=r.subarray(-16);r=r.subarray(12,-16);try{let e=a.createDecipheriv(`aes-256-gcm`,n,i);return e.setAuthTag(o),`${e.update(r)}${e.final()}`}catch(e){let t=e instanceof RangeError,n=e.message===`Invalid key length`,r=e.message===`Unsupported state or unable to authenticate data`;if(t||n){let e=Error(`INVALID_DOTENV_KEY: It must be 64 characters long (or more)`);throw e.code=`INVALID_DOTENV_KEY`,e}else if(r){let e=Error(`DECRYPTION_FAILED: Please check your DOTENV_KEY`);throw e.code=`DECRYPTION_FAILED`,e}else throw e}}function T(e,t,n={}){let r=!!(n&&n.debug),i=!!(n&&n.override),a={};if(typeof t!=`object`){let e=Error(`OBJECT_REQUIRED: Please check the processEnv argument being passed to populate`);throw e.code=`OBJECT_REQUIRED`,e}for(let n of Object.keys(t))Object.prototype.hasOwnProperty.call(e,n)?(i===!0&&(e[n]=t[n],a[n]=t[n]),r&&h(i===!0?`"${n}" is already defined and WAS overwritten`:`"${n}" is already defined and was NOT overwritten`)):(e[n]=t[n],a[n]=t[n]);return a}var E={configDotenv:S,_configVault:x,_parseVault:p,config:C,decrypt:w,parse:f,populate:T};t.exports.configDotenv=E.configDotenv,t.exports._configVault=E._configVault,t.exports._parseVault=E._parseVault,t.exports.config=E.config,t.exports.decrypt=E.decrypt,t.exports.parse=E.parse,t.exports.populate=E.populate,t.exports=E})),f=o(((e,t)=>{var n={};process.env.DOTENV_CONFIG_ENCODING!=null&&(n.encoding=process.env.DOTENV_CONFIG_ENCODING),process.env.DOTENV_CONFIG_PATH!=null&&(n.path=process.env.DOTENV_CONFIG_PATH),process.env.DOTENV_CONFIG_QUIET!=null&&(n.quiet=process.env.DOTENV_CONFIG_QUIET),process.env.DOTENV_CONFIG_DEBUG!=null&&(n.debug=process.env.DOTENV_CONFIG_DEBUG),process.env.DOTENV_CONFIG_OVERRIDE!=null&&(n.override=process.env.DOTENV_CONFIG_OVERRIDE),process.env.DOTENV_CONFIG_DOTENV_KEY!=null&&(n.DOTENV_KEY=process.env.DOTENV_CONFIG_DOTENV_KEY),t.exports=n})),p=o(((e,t)=>{var n=/^dotenv_config_(encoding|path|quiet|debug|override|DOTENV_KEY)=(.+)$/;t.exports=function(e){let t=e.reduce(function(e,t){let r=t.match(n);return r&&(e[r[1]]=r[2]),e},{});return`quiet`in t||(t.quiet=`true`),t}}));(function(){d().config(Object.assign({},f(),p()(process.argv)))})();var m=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/auth`;async login(e,t){try{let n=await fetch(`${this.apiUrl}/login`,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify({email:e,password:t})}),r=await n.json();return n.ok?{success:!0,token:r.token,user:r.user}:{success:!1,error:r.error||`Falha no login`}}catch{return{success:!1,error:`Erro ao conectar à API`}}}async register(e,t,n,r){try{let i=await fetch(`${this.apiUrl}/register`,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify({name:e,email:t,password:n,signatureBase64:r})}),a=await i.json();return i.ok?{success:!0}:{success:!1,error:a.error||`Falha no registro`}}catch{return{success:!1,error:`Erro ao conectar à API`}}}},h=class{authRepository;constructor(e){this.authRepository=e}async login(e,t){return!e||!t?{success:!1,error:`E-mail e senha são obrigatórios`}:this.authRepository.login(e,t)}async register(e,t,n,r){return!e||!t||!n?{success:!1,error:`Todos os campos são obrigatórios`}:this.authRepository.register(e,t,n,r)}},g=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/calibration`;async save(e){try{let t=await fetch(this.apiUrl,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify(e)});if(!t.ok){let e=await t.json();throw Error(e.error||`Falha ao salvar na API: ${t.statusText}`)}let n=await t.json();return console.log(`Resposta da API:`,n),n.data||n}catch(e){throw console.error(`Erro de rede ao salvar na API:`,e),e}}async getByEquipmentId(e){try{let t=await fetch(`${this.apiUrl}/equipment/${e}`);if(!t.ok)throw Error(`Falha ao buscar histórico: ${t.statusText}`);return((await t.json()).data||[]).map(e=>{if(typeof e.readings==`string`)try{e.readings=JSON.parse(e.readings)}catch{e.readings=[]}return e})}catch(e){throw console.error(`Erro ao buscar histórico de calibração:`,e),e}}async updateHeader(e,t,n){try{let r=await fetch(`${this.apiUrl}/${e}`,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify({clientId:t,createdAt:n})});if(!r.ok){let e=await r.json();throw Error(e.error||`Falha ao atualizar cabeçalho: ${r.statusText}`)}return await r.json()}catch(e){throw console.error(`Erro de rede ao atualizar cabeçalho de calibração:`,e),e}}},_=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/equipments`;async getAll(){let e=await fetch(this.apiUrl);if(!e.ok)throw Error(`Falha ao buscar equipamentos`);return(await e.json()).data}async create(e,t,n,r,i){let a=await fetch(this.apiUrl,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify({op:e,ns:t,name:n,equipment_type:r,measurement_range:i})}),o=await a.json();if(!a.ok)throw Error(o.error||`Falha ao cadastrar equipamento`);return o.data}async update(e,t,n,r,i,a){let o=await fetch(`${this.apiUrl}/${e}`,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify({op:t,ns:n,name:r,equipment_type:i,measurement_range:a})}),s=await o.json();if(!o.ok)throw Error(s.error||`Falha ao atualizar equipamento`);return s}async delete(e){if(!(await fetch(`${this.apiUrl}/${e}`,{method:`DELETE`})).ok)throw Error(`Falha ao excluir equipamento`)}},v=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/clients`;async getAll(){let e=await fetch(this.apiUrl);if(!e.ok)throw Error(`Falha ao buscar clientes`);return(await e.json()).data}async create(e,t,n,r,i){let a=await fetch(this.apiUrl,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify({company:e,cnpj:t,email:n,adress:r,city:i})}),o=await a.json();if(!a.ok)throw Error(o.error||`Falha ao cadastrar cliente`);return o.data}async update(e,t,n,r,i,a){let o=await fetch(`${this.apiUrl}/${e}`,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify({company:t,cnpj:n,email:r,adress:i,city:a})}),s=await o.json();if(!o.ok)throw Error(s.error||`Falha ao atualizar cliente`);return s}async delete(e){if(!(await fetch(`${this.apiUrl}/${e}`,{method:`DELETE`})).ok)throw Error(`Falha ao excluir cliente`)}},y=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/templates`;async getAll(){let e=await fetch(this.apiUrl);if(!e.ok){let t=await e.text();throw console.error(`[ApiTemplates] HTTP ERROR:`,e.status,t),Error(`Falha ao buscar templates: Status ${e.status} - ${t}`)}return(await e.json()).data}async getById(e){let t=await fetch(`${this.apiUrl}/${e}`);if(!t.ok)throw Error(`Falha ao buscar template`);let n=(await t.json()).data;return typeof n.structure==`string`&&(n.structure=JSON.parse(n.structure)),n}async create(e){let t=await fetch(this.apiUrl,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify(e)}),n=await t.json();if(!t.ok)throw Error(n.error||`Falha ao cadastrar template`);return n.data}async update(e,t){let n=await fetch(`${this.apiUrl}/${e}`,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify(t)}),r=await n.json();if(!n.ok)throw Error(r.error||`Falha ao atualizar template`);return r.data}async delete(e){let t=await fetch(`${this.apiUrl}/${e}`,{method:`DELETE`});if(!t.ok){let e=await t.json();throw Error(e.error||`Falha ao excluir template`)}}},b=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/standards`;async getAll(){try{let e=await fetch(this.apiUrl);if(!e.ok)throw Error(`Falha ao buscar padrões`);return await e.json()}catch(e){throw console.error(e),e}}async getById(e){try{let t=await fetch(`${this.apiUrl}/${e}`);if(!t.ok)throw Error(`Falha ao buscar padrão por ID`);return await t.json()}catch(e){throw console.error(e),e}}async create(e){try{let t=await fetch(this.apiUrl,{method:`POST`,headers:{"Content-Type":`application/json`},body:JSON.stringify(e)}),n=await t.json();if(!t.ok)throw Error(n.error||`Falha ao criar padrão`);return n}catch(e){throw console.error(e),e}}async update(e,t){try{let n=await fetch(`${this.apiUrl}/${e}`,{method:`PUT`,headers:{"Content-Type":`application/json`},body:JSON.stringify(t)}),r=await n.json();if(!n.ok)throw Error(r.error||`Falha ao atualizar padrão`);return r}catch(e){throw console.error(e),e}}async delete(e){try{if(!(await fetch(`${this.apiUrl}/${e}`,{method:`DELETE`})).ok)throw Error(`Falha ao excluir padrão`)}catch(e){throw console.error(e),e}}},x=class{apiUrl=`${process.env.VITE_API_BASE_URL||`http://localhost:3002/api`}/dashboard`;async getMetrics(e){let t=new URLSearchParams;e?.startDate&&t.append(`startDate`,e.startDate),e?.endDate&&t.append(`endDate`,e.endDate),e?.equipmentType&&t.append(`equipmentType`,e.equipmentType);let n=t.toString()?`?${t.toString()}`:``,r=await fetch(`${this.apiUrl}/metrics${n}`);if(!r.ok){let e=await r.text();throw console.error(`[ApiDashboard] HTTP ERROR:`,r.status,e),Error(`Falha ao buscar métricas da dashboard: Status ${r.status} - ${e}`)}return(await r.json()).data}};process.env.DIST=u.default.join(__dirname,`../dist`),process.env.VITE_PUBLIC=l.app.isPackaged?process.env.DIST:u.default.join(process.env.DIST,`../public`);var S,C=process.env.VITE_DEV_SERVER_URL,w=null,T=global.fetch;global.fetch=async(e,t)=>{if(w&&typeof e==`string`&&e.includes(process.env.VITE_API_BASE_URL||`3002`)){t||={};let e=new Headers(t.headers);e.set(`Authorization`,`Bearer ${w}`),t.headers=e}return T(e,t)};var E=new h(new m),D=new g,O=new _,k=new v,A=new y,j=new b,M=new x;l.ipcMain.handle(`auth:login`,async(e,t,n)=>{let r=await E.login(t,n);return r.success&&r.token&&(w=r.token),r}),l.ipcMain.handle(`auth:register`,async(e,t,n,r,i)=>E.register(t,n,r,i)),l.ipcMain.handle(`calibration:save`,async(e,t)=>D.save(t)),l.ipcMain.handle(`calibration:getByEquipment`,async(e,t)=>D.getByEquipmentId(t)),l.ipcMain.handle(`calibration:updateHeader`,async(e,t,n,r)=>D.updateHeader(t,n,r)),l.ipcMain.handle(`equipments:getAll`,async()=>O.getAll()),l.ipcMain.handle(`equipments:create`,async(e,t,n,r,i,a)=>O.create(t,n,r,i,a)),l.ipcMain.handle(`equipments:update`,async(e,t,n,r,i,a,o)=>O.update(t,n,r,i,a,o)),l.ipcMain.handle(`equipments:delete`,async(e,t)=>O.delete(t)),l.ipcMain.handle(`clients:getAll`,async()=>k.getAll()),l.ipcMain.handle(`clients:create`,async(e,t,n,r,i,a)=>k.create(t,n,r,i,a)),l.ipcMain.handle(`clients:update`,async(e,t,n,r,i,a,o)=>k.update(t,n,r,i,a,o)),l.ipcMain.handle(`clients:delete`,async(e,t)=>k.delete(t)),l.ipcMain.handle(`templates:getAll`,async()=>A.getAll()),l.ipcMain.handle(`templates:getById`,async(e,t)=>A.getById(t)),l.ipcMain.handle(`templates:create`,async(e,t)=>A.create(t)),l.ipcMain.handle(`templates:update`,async(e,t,n)=>A.update(t,n)),l.ipcMain.handle(`templates:delete`,async(e,t)=>A.delete(t)),l.ipcMain.handle(`standards:getAll`,async()=>j.getAll()),l.ipcMain.handle(`standards:getById`,async(e,t)=>j.getById(t)),l.ipcMain.handle(`standards:create`,async(e,t)=>{let n=await j.create(t);return S?.webContents.send(`standards:updated`),n}),l.ipcMain.handle(`standards:update`,async(e,t,n)=>{let r=await j.update(t,n);return S?.webContents.send(`standards:updated`),r}),l.ipcMain.handle(`standards:delete`,async(e,t)=>{let n=await j.delete(t);return S?.webContents.send(`standards:updated`),n}),l.ipcMain.handle(`dashboard:getMetrics`,async(e,t)=>M.getMetrics(t));function N(){S=new l.BrowserWindow({width:1600,height:768,icon:u.default.join(__dirname,`../src/assets/logo-calibracao-lhf.png`),title:`Calibração LHF`,webPreferences:{preload:u.default.join(__dirname,`preload.js`),contextIsolation:!0,nodeIntegration:!1}}),C?S.loadURL(C):S.loadFile(u.default.join(process.env.DIST,`index.html`))}l.app.on(`window-all-closed`,()=>{process.platform!==`darwin`&&(l.app.quit(),S=null)}),l.app.whenReady().then(N);
+//#region \0rolldown/runtime.js
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
+var __copyProps = (to, from, except, desc) => {
+	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
+		key = keys[i];
+		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
+			get: ((k) => from[k]).bind(null, key),
+			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+		});
+	}
+	return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
+	value: mod,
+	enumerable: true
+}) : target, mod));
+//#endregion
+let electron = require("electron");
+let node_path = require("node:path");
+node_path = __toESM(node_path);
+//#region node_modules/dotenv/lib/main.js
+var require_main = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+	var fs = require("fs");
+	var path$1 = require("path");
+	var os = require("os");
+	var crypto = require("crypto");
+	var TIPS = [
+		"◈ encrypted .env [www.dotenvx.com]",
+		"◈ secrets for agents [www.dotenvx.com]",
+		"⌁ auth for agents [www.vestauth.com]",
+		"⌘ custom filepath { path: '/custom/path/.env' }",
+		"⌘ enable debugging { debug: true }",
+		"⌘ override existing { override: true }",
+		"⌘ suppress logs { quiet: true }",
+		"⌘ multiple files { path: ['.env.local', '.env'] }"
+	];
+	function _getRandomTip() {
+		return TIPS[Math.floor(Math.random() * TIPS.length)];
+	}
+	function parseBoolean(value) {
+		if (typeof value === "string") return ![
+			"false",
+			"0",
+			"no",
+			"off",
+			""
+		].includes(value.toLowerCase());
+		return Boolean(value);
+	}
+	function supportsAnsi() {
+		return process.stdout.isTTY;
+	}
+	function dim(text) {
+		return supportsAnsi() ? `\x1b[2m${text}\x1b[0m` : text;
+	}
+	var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/gm;
+	function parse(src) {
+		const obj = {};
+		let lines = src.toString();
+		lines = lines.replace(/\r\n?/gm, "\n");
+		let match;
+		while ((match = LINE.exec(lines)) != null) {
+			const key = match[1];
+			let value = match[2] || "";
+			value = value.trim();
+			const maybeQuote = value[0];
+			value = value.replace(/^(['"`])([\s\S]*)\1$/gm, "$2");
+			if (maybeQuote === "\"") {
+				value = value.replace(/\\n/g, "\n");
+				value = value.replace(/\\r/g, "\r");
+			}
+			obj[key] = value;
+		}
+		return obj;
+	}
+	function _parseVault(options) {
+		options = options || {};
+		const vaultPath = _vaultPath(options);
+		options.path = vaultPath;
+		const result = DotenvModule.configDotenv(options);
+		if (!result.parsed) {
+			const err = /* @__PURE__ */ new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
+			err.code = "MISSING_DATA";
+			throw err;
+		}
+		const keys = _dotenvKey(options).split(",");
+		const length = keys.length;
+		let decrypted;
+		for (let i = 0; i < length; i++) try {
+			const attrs = _instructions(result, keys[i].trim());
+			decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
+			break;
+		} catch (error) {
+			if (i + 1 >= length) throw error;
+		}
+		return DotenvModule.parse(decrypted);
+	}
+	function _warn(message) {
+		console.error(`⚠ ${message}`);
+	}
+	function _debug(message) {
+		console.log(`┆ ${message}`);
+	}
+	function _log(message) {
+		console.log(`◇ ${message}`);
+	}
+	function _dotenvKey(options) {
+		if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) return options.DOTENV_KEY;
+		if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) return process.env.DOTENV_KEY;
+		return "";
+	}
+	function _instructions(result, dotenvKey) {
+		let uri;
+		try {
+			uri = new URL(dotenvKey);
+		} catch (error) {
+			if (error.code === "ERR_INVALID_URL") {
+				const err = /* @__PURE__ */ new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");
+				err.code = "INVALID_DOTENV_KEY";
+				throw err;
+			}
+			throw error;
+		}
+		const key = uri.password;
+		if (!key) {
+			const err = /* @__PURE__ */ new Error("INVALID_DOTENV_KEY: Missing key part");
+			err.code = "INVALID_DOTENV_KEY";
+			throw err;
+		}
+		const environment = uri.searchParams.get("environment");
+		if (!environment) {
+			const err = /* @__PURE__ */ new Error("INVALID_DOTENV_KEY: Missing environment part");
+			err.code = "INVALID_DOTENV_KEY";
+			throw err;
+		}
+		const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
+		const ciphertext = result.parsed[environmentKey];
+		if (!ciphertext) {
+			const err = /* @__PURE__ */ new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
+			err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
+			throw err;
+		}
+		return {
+			ciphertext,
+			key
+		};
+	}
+	function _vaultPath(options) {
+		let possibleVaultPath = null;
+		if (options && options.path && options.path.length > 0) if (Array.isArray(options.path)) {
+			for (const filepath of options.path) if (fs.existsSync(filepath)) possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
+		} else possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
+		else possibleVaultPath = path$1.resolve(process.cwd(), ".env.vault");
+		if (fs.existsSync(possibleVaultPath)) return possibleVaultPath;
+		return null;
+	}
+	function _resolveHome(envPath) {
+		return envPath[0] === "~" ? path$1.join(os.homedir(), envPath.slice(1)) : envPath;
+	}
+	function _configVault(options) {
+		const debug = parseBoolean(process.env.DOTENV_CONFIG_DEBUG || options && options.debug);
+		const quiet = parseBoolean(process.env.DOTENV_CONFIG_QUIET || options && options.quiet);
+		if (debug || !quiet) _log("loading env from encrypted .env.vault");
+		const parsed = DotenvModule._parseVault(options);
+		let processEnv = process.env;
+		if (options && options.processEnv != null) processEnv = options.processEnv;
+		DotenvModule.populate(processEnv, parsed, options);
+		return { parsed };
+	}
+	function configDotenv(options) {
+		const dotenvPath = path$1.resolve(process.cwd(), ".env");
+		let encoding = "utf8";
+		let processEnv = process.env;
+		if (options && options.processEnv != null) processEnv = options.processEnv;
+		let debug = parseBoolean(processEnv.DOTENV_CONFIG_DEBUG || options && options.debug);
+		let quiet = parseBoolean(processEnv.DOTENV_CONFIG_QUIET || options && options.quiet);
+		if (options && options.encoding) encoding = options.encoding;
+		else if (debug) _debug("no encoding is specified (UTF-8 is used by default)");
+		let optionPaths = [dotenvPath];
+		if (options && options.path) if (!Array.isArray(options.path)) optionPaths = [_resolveHome(options.path)];
+		else {
+			optionPaths = [];
+			for (const filepath of options.path) optionPaths.push(_resolveHome(filepath));
+		}
+		let lastError;
+		const parsedAll = {};
+		for (const path of optionPaths) try {
+			const parsed = DotenvModule.parse(fs.readFileSync(path, { encoding }));
+			DotenvModule.populate(parsedAll, parsed, options);
+		} catch (e) {
+			if (debug) _debug(`failed to load ${path} ${e.message}`);
+			lastError = e;
+		}
+		const populated = DotenvModule.populate(processEnv, parsedAll, options);
+		debug = parseBoolean(processEnv.DOTENV_CONFIG_DEBUG || debug);
+		quiet = parseBoolean(processEnv.DOTENV_CONFIG_QUIET || quiet);
+		if (debug || !quiet) {
+			const keysCount = Object.keys(populated).length;
+			const shortPaths = [];
+			for (const filePath of optionPaths) try {
+				const relative = path$1.relative(process.cwd(), filePath);
+				shortPaths.push(relative);
+			} catch (e) {
+				if (debug) _debug(`failed to load ${filePath} ${e.message}`);
+				lastError = e;
+			}
+			_log(`injected env (${keysCount}) from ${shortPaths.join(",")} ${dim(`// tip: ${_getRandomTip()}`)}`);
+		}
+		if (lastError) return {
+			parsed: parsedAll,
+			error: lastError
+		};
+		else return { parsed: parsedAll };
+	}
+	function config(options) {
+		if (_dotenvKey(options).length === 0) return DotenvModule.configDotenv(options);
+		const vaultPath = _vaultPath(options);
+		if (!vaultPath) {
+			_warn(`you set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}`);
+			return DotenvModule.configDotenv(options);
+		}
+		return DotenvModule._configVault(options);
+	}
+	function decrypt(encrypted, keyStr) {
+		const key = Buffer.from(keyStr.slice(-64), "hex");
+		let ciphertext = Buffer.from(encrypted, "base64");
+		const nonce = ciphertext.subarray(0, 12);
+		const authTag = ciphertext.subarray(-16);
+		ciphertext = ciphertext.subarray(12, -16);
+		try {
+			const aesgcm = crypto.createDecipheriv("aes-256-gcm", key, nonce);
+			aesgcm.setAuthTag(authTag);
+			return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
+		} catch (error) {
+			const isRange = error instanceof RangeError;
+			const invalidKeyLength = error.message === "Invalid key length";
+			const decryptionFailed = error.message === "Unsupported state or unable to authenticate data";
+			if (isRange || invalidKeyLength) {
+				const err = /* @__PURE__ */ new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");
+				err.code = "INVALID_DOTENV_KEY";
+				throw err;
+			} else if (decryptionFailed) {
+				const err = /* @__PURE__ */ new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");
+				err.code = "DECRYPTION_FAILED";
+				throw err;
+			} else throw error;
+		}
+	}
+	function populate(processEnv, parsed, options = {}) {
+		const debug = Boolean(options && options.debug);
+		const override = Boolean(options && options.override);
+		const populated = {};
+		if (typeof parsed !== "object") {
+			const err = /* @__PURE__ */ new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
+			err.code = "OBJECT_REQUIRED";
+			throw err;
+		}
+		for (const key of Object.keys(parsed)) if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
+			if (override === true) {
+				processEnv[key] = parsed[key];
+				populated[key] = parsed[key];
+			}
+			if (debug) if (override === true) _debug(`"${key}" is already defined and WAS overwritten`);
+			else _debug(`"${key}" is already defined and was NOT overwritten`);
+		} else {
+			processEnv[key] = parsed[key];
+			populated[key] = parsed[key];
+		}
+		return populated;
+	}
+	var DotenvModule = {
+		configDotenv,
+		_configVault,
+		_parseVault,
+		config,
+		decrypt,
+		parse,
+		populate
+	};
+	module.exports.configDotenv = DotenvModule.configDotenv;
+	module.exports._configVault = DotenvModule._configVault;
+	module.exports._parseVault = DotenvModule._parseVault;
+	module.exports.config = DotenvModule.config;
+	module.exports.decrypt = DotenvModule.decrypt;
+	module.exports.parse = DotenvModule.parse;
+	module.exports.populate = DotenvModule.populate;
+	module.exports = DotenvModule;
+}));
+//#endregion
+//#region node_modules/dotenv/lib/env-options.js
+var require_env_options = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+	var options = {};
+	if (process.env.DOTENV_CONFIG_ENCODING != null) options.encoding = process.env.DOTENV_CONFIG_ENCODING;
+	if (process.env.DOTENV_CONFIG_PATH != null) options.path = process.env.DOTENV_CONFIG_PATH;
+	if (process.env.DOTENV_CONFIG_QUIET != null) options.quiet = process.env.DOTENV_CONFIG_QUIET;
+	if (process.env.DOTENV_CONFIG_DEBUG != null) options.debug = process.env.DOTENV_CONFIG_DEBUG;
+	if (process.env.DOTENV_CONFIG_OVERRIDE != null) options.override = process.env.DOTENV_CONFIG_OVERRIDE;
+	if (process.env.DOTENV_CONFIG_DOTENV_KEY != null) options.DOTENV_KEY = process.env.DOTENV_CONFIG_DOTENV_KEY;
+	module.exports = options;
+}));
+//#endregion
+//#region node_modules/dotenv/lib/cli-options.js
+var require_cli_options = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+	var re = /^dotenv_config_(encoding|path|quiet|debug|override|DOTENV_KEY)=(.+)$/;
+	module.exports = function optionMatcher(args) {
+		const options = args.reduce(function(acc, cur) {
+			const matches = cur.match(re);
+			if (matches) acc[matches[1]] = matches[2];
+			return acc;
+		}, {});
+		if (!("quiet" in options)) options.quiet = "true";
+		return options;
+	};
+}));
+//#endregion
+//#region node_modules/dotenv/config.js
+(function() {
+	require_main().config(Object.assign({}, require_env_options(), require_cli_options()(process.argv)));
+})();
+//#endregion
+//#region src/services/auth/ApiAuthRepository.ts
+var ApiAuthRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/auth`;
+	async login(email, password) {
+		try {
+			const response = await fetch(`${this.apiUrl}/login`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					email,
+					password
+				})
+			});
+			const data = await response.json();
+			if (!response.ok) return {
+				success: false,
+				error: data.error || "Falha no login"
+			};
+			return {
+				success: true,
+				token: data.token,
+				user: data.user
+			};
+		} catch (error) {
+			return {
+				success: false,
+				error: "Erro ao conectar à API"
+			};
+		}
+	}
+	async register(name, email, password, signatureBase64) {
+		try {
+			const response = await fetch(`${this.apiUrl}/register`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name,
+					email,
+					password,
+					signatureBase64
+				})
+			});
+			const data = await response.json();
+			if (!response.ok) return {
+				success: false,
+				error: data.error || "Falha no registro"
+			};
+			return { success: true };
+		} catch (error) {
+			return {
+				success: false,
+				error: "Erro ao conectar à API"
+			};
+		}
+	}
+};
+//#endregion
+//#region src/domain/auth/AuthService.ts
+var AuthService = class {
+	authRepository;
+	constructor(authRepository) {
+		this.authRepository = authRepository;
+	}
+	async login(email, password) {
+		if (!email || !password) return {
+			success: false,
+			error: "E-mail e senha são obrigatórios"
+		};
+		return this.authRepository.login(email, password);
+	}
+	async register(name, email, password, signatureBase64) {
+		if (!name || !email || !password) return {
+			success: false,
+			error: "Todos os campos são obrigatórios"
+		};
+		return this.authRepository.register(name, email, password, signatureBase64);
+	}
+};
+//#endregion
+//#region src/services/calibration/ApiCalibrationRepository.ts
+var ApiCalibrationRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/calibration`;
+	async getAll() {
+		try {
+			const response = await fetch(this.apiUrl);
+			if (!response.ok) throw new Error(`Falha ao buscar todas as calibrações: ${response.statusText}`);
+			return ((await response.json()).data || []).map((rec) => {
+				if (typeof rec.readings === "string") try {
+					rec.readings = JSON.parse(rec.readings);
+				} catch (e) {
+					rec.readings = [];
+				}
+				return rec;
+			});
+		} catch (error) {
+			console.error("Erro ao buscar histórico de calibração:", error);
+			throw error;
+		}
+	}
+	async save(data) {
+		try {
+			const response = await fetch(this.apiUrl, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(data)
+			});
+			if (!response.ok) {
+				const errData = await response.json();
+				throw new Error(errData.error || `Falha ao salvar na API: ${response.statusText}`);
+			}
+			const result = await response.json();
+			console.log("Resposta da API:", result);
+			return result.data || result;
+		} catch (error) {
+			console.error("Erro de rede ao salvar na API:", error);
+			throw error;
+		}
+	}
+	async getByEquipmentId(equipmentId) {
+		try {
+			const response = await fetch(`${this.apiUrl}/equipment/${equipmentId}`);
+			if (!response.ok) throw new Error(`Falha ao buscar histórico: ${response.statusText}`);
+			return ((await response.json()).data || []).map((rec) => {
+				if (typeof rec.readings === "string") try {
+					rec.readings = JSON.parse(rec.readings);
+				} catch (e) {
+					rec.readings = [];
+				}
+				return rec;
+			});
+		} catch (error) {
+			console.error("Erro ao buscar histórico de calibração:", error);
+			throw error;
+		}
+	}
+	async updateHeader(id, clientId, createdAt) {
+		try {
+			const response = await fetch(`${this.apiUrl}/${id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					clientId,
+					createdAt
+				})
+			});
+			if (!response.ok) {
+				const errData = await response.json();
+				throw new Error(errData.error || `Falha ao atualizar cabeçalho: ${response.statusText}`);
+			}
+			return await response.json();
+		} catch (error) {
+			console.error("Erro de rede ao atualizar cabeçalho de calibração:", error);
+			throw error;
+		}
+	}
+};
+//#endregion
+//#region src/services/equipments/ApiEquipmentsRepository.ts
+var ApiEquipmentsRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/equipments`;
+	async getAll() {
+		const response = await fetch(this.apiUrl);
+		if (!response.ok) throw new Error("Falha ao buscar equipamentos");
+		return (await response.json()).data;
+	}
+	async create(op, ns, name, equipmentType, measurementRange) {
+		const response = await fetch(this.apiUrl, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				op,
+				ns,
+				name,
+				equipment_type: equipmentType,
+				measurement_range: measurementRange
+			})
+		});
+		const data = await response.json();
+		if (!response.ok) throw new Error(data.error || "Falha ao cadastrar equipamento");
+		return data.data;
+	}
+	async update(id, op, ns, name, equipmentType, measurementRange) {
+		const response = await fetch(`${this.apiUrl}/${id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				op,
+				ns,
+				name,
+				equipment_type: equipmentType,
+				measurement_range: measurementRange
+			})
+		});
+		const data = await response.json();
+		if (!response.ok) throw new Error(data.error || "Falha ao atualizar equipamento");
+		return data;
+	}
+	async delete(id) {
+		if (!(await fetch(`${this.apiUrl}/${id}`, { method: "DELETE" })).ok) throw new Error("Falha ao excluir equipamento");
+	}
+};
+//#endregion
+//#region src/services/clients/ApiClientsRepository.ts
+var ApiClientsRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/clients`;
+	async getAll() {
+		const response = await fetch(this.apiUrl);
+		if (!response.ok) throw new Error("Falha ao buscar clientes");
+		return (await response.json()).data;
+	}
+	async create(company, cnpj, email, adress, city) {
+		const response = await fetch(this.apiUrl, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				company,
+				cnpj,
+				email,
+				adress,
+				city
+			})
+		});
+		const data = await response.json();
+		if (!response.ok) throw new Error(data.error || "Falha ao cadastrar cliente");
+		return data.data;
+	}
+	async update(id, company, cnpj, email, adress, city) {
+		const response = await fetch(`${this.apiUrl}/${id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				company,
+				cnpj,
+				email,
+				adress,
+				city
+			})
+		});
+		const data = await response.json();
+		if (!response.ok) throw new Error(data.error || "Falha ao atualizar cliente");
+		return data;
+	}
+	async delete(id) {
+		if (!(await fetch(`${this.apiUrl}/${id}`, { method: "DELETE" })).ok) throw new Error("Falha ao excluir cliente");
+	}
+};
+//#endregion
+//#region src/services/templates/ApiTemplatesRepository.ts
+var ApiTemplatesRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/templates`;
+	async getAll() {
+		const response = await fetch(this.apiUrl);
+		if (!response.ok) {
+			const errTxt = await response.text();
+			console.error("[ApiTemplates] HTTP ERROR:", response.status, errTxt);
+			throw new Error(`Falha ao buscar templates: Status ${response.status} - ${errTxt}`);
+		}
+		return (await response.json()).data;
+	}
+	async getById(id) {
+		const response = await fetch(`${this.apiUrl}/${id}`);
+		if (!response.ok) throw new Error("Falha ao buscar template");
+		const template = (await response.json()).data;
+		if (typeof template.structure === "string") template.structure = JSON.parse(template.structure);
+		return template;
+	}
+	async create(template) {
+		const response = await fetch(this.apiUrl, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(template)
+		});
+		const data = await response.json();
+		if (!response.ok) throw new Error(data.error || "Falha ao cadastrar template");
+		return data.data;
+	}
+	async update(id, template) {
+		const response = await fetch(`${this.apiUrl}/${id}`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(template)
+		});
+		const data = await response.json();
+		if (!response.ok) throw new Error(data.error || "Falha ao atualizar template");
+		return data.data;
+	}
+	async delete(id) {
+		const response = await fetch(`${this.apiUrl}/${id}`, { method: "DELETE" });
+		if (!response.ok) {
+			const data = await response.json();
+			throw new Error(data.error || "Falha ao excluir template");
+		}
+	}
+};
+//#endregion
+//#region src/services/standards/ApiStandardsRepository.ts
+var ApiStandardsRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/standards`;
+	async getAll() {
+		try {
+			const response = await fetch(this.apiUrl);
+			if (!response.ok) throw new Error("Falha ao buscar padrões");
+			return await response.json();
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	}
+	async getById(id) {
+		try {
+			const response = await fetch(`${this.apiUrl}/${id}`);
+			if (!response.ok) throw new Error("Falha ao buscar padrão por ID");
+			return await response.json();
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	}
+	async create(standard) {
+		try {
+			const response = await fetch(this.apiUrl, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(standard)
+			});
+			const data = await response.json();
+			if (!response.ok) throw new Error(data.error || "Falha ao criar padrão");
+			return data;
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	}
+	async update(id, standard) {
+		try {
+			const response = await fetch(`${this.apiUrl}/${id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(standard)
+			});
+			const data = await response.json();
+			if (!response.ok) throw new Error(data.error || "Falha ao atualizar padrão");
+			return data;
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	}
+	async delete(id) {
+		try {
+			if (!(await fetch(`${this.apiUrl}/${id}`, { method: "DELETE" })).ok) throw new Error("Falha ao excluir padrão");
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	}
+};
+//#endregion
+//#region src/services/dashboard/ApiDashboardRepository.ts
+var ApiDashboardRepository = class {
+	apiUrl = `${process.env.VITE_API_BASE_URL || "http://localhost:3002/api"}/dashboard`;
+	async getMetrics(filters) {
+		const params = new URLSearchParams();
+		if (filters?.startDate) params.append("startDate", filters.startDate);
+		if (filters?.endDate) params.append("endDate", filters.endDate);
+		if (filters?.equipmentType) params.append("equipmentType", filters.equipmentType);
+		const queryStr = params.toString() ? `?${params.toString()}` : "";
+		const response = await fetch(`${this.apiUrl}/metrics${queryStr}`);
+		if (!response.ok) {
+			const errTxt = await response.text();
+			console.error("[ApiDashboard] HTTP ERROR:", response.status, errTxt);
+			throw new Error(`Falha ao buscar métricas da dashboard: Status ${response.status} - ${errTxt}`);
+		}
+		return (await response.json()).data;
+	}
+};
+//#endregion
+//#region electron/main.ts
+process.env.DIST = node_path.default.join(__dirname, "../dist");
+process.env.VITE_PUBLIC = electron.app.isPackaged ? process.env.DIST : node_path.default.join(process.env.DIST, "../public");
+var win;
+var VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
+var globalAuthToken = null;
+var originalFetch = global.fetch;
+global.fetch = async (url, init) => {
+	if (globalAuthToken && typeof url === "string" && url.includes(process.env.VITE_API_BASE_URL || "3002")) {
+		init = init || {};
+		const newHeaders = new Headers(init.headers);
+		newHeaders.set("Authorization", `Bearer ${globalAuthToken}`);
+		init.headers = newHeaders;
+	}
+	return originalFetch(url, init);
+};
+var authService = new AuthService(new ApiAuthRepository());
+var calibrationRepository = new ApiCalibrationRepository();
+var equipmentsRepository = new ApiEquipmentsRepository();
+var clientsRepository = new ApiClientsRepository();
+var templatesRepository = new ApiTemplatesRepository();
+var standardsRepository = new ApiStandardsRepository();
+var dashboardRepository = new ApiDashboardRepository();
+electron.ipcMain.handle("auth:login", async (_, email, password) => {
+	const result = await authService.login(email, password);
+	if (result.success && result.token) globalAuthToken = result.token;
+	return result;
+});
+electron.ipcMain.handle("auth:register", async (_, name, email, password, signatureBase64) => {
+	return authService.register(name, email, password, signatureBase64);
+});
+electron.ipcMain.handle("calibration:save", async (_, data) => {
+	return calibrationRepository.save(data);
+});
+electron.ipcMain.handle("calibration:getByEquipment", async (_, equipmentId) => {
+	return calibrationRepository.getByEquipmentId(equipmentId);
+});
+electron.ipcMain.handle("calibration:updateHeader", async (_, id, clientId, createdAt) => {
+	return calibrationRepository.updateHeader(id, clientId, createdAt);
+});
+electron.ipcMain.handle("equipments:getAll", async () => {
+	return equipmentsRepository.getAll();
+});
+electron.ipcMain.handle("equipments:create", async (_, op, ns, name, equipmentType, measurementRange) => {
+	return equipmentsRepository.create(op, ns, name, equipmentType, measurementRange);
+});
+electron.ipcMain.handle("equipments:update", async (_, id, op, ns, name, equipmentType, measurementRange) => {
+	return equipmentsRepository.update(id, op, ns, name, equipmentType, measurementRange);
+});
+electron.ipcMain.handle("equipments:delete", async (_, id) => {
+	return equipmentsRepository.delete(id);
+});
+electron.ipcMain.handle("clients:getAll", async () => {
+	return clientsRepository.getAll();
+});
+electron.ipcMain.handle("clients:create", async (_, company, cnpj, email, adress, city) => {
+	return clientsRepository.create(company, cnpj, email, adress, city);
+});
+electron.ipcMain.handle("clients:update", async (_, id, company, cnpj, email, adress, city) => {
+	return clientsRepository.update(id, company, cnpj, email, adress, city);
+});
+electron.ipcMain.handle("clients:delete", async (_, id) => {
+	return clientsRepository.delete(id);
+});
+electron.ipcMain.handle("templates:getAll", async () => {
+	return templatesRepository.getAll();
+});
+electron.ipcMain.handle("templates:getById", async (_, id) => {
+	return templatesRepository.getById(id);
+});
+electron.ipcMain.handle("templates:create", async (_, template) => {
+	return templatesRepository.create(template);
+});
+electron.ipcMain.handle("templates:update", async (_, id, template) => {
+	return templatesRepository.update(id, template);
+});
+electron.ipcMain.handle("templates:delete", async (_, id) => {
+	return templatesRepository.delete(id);
+});
+electron.ipcMain.handle("standards:getAll", async () => {
+	return standardsRepository.getAll();
+});
+electron.ipcMain.handle("standards:getById", async (_, id) => {
+	return standardsRepository.getById(id);
+});
+electron.ipcMain.handle("standards:create", async (_, standard) => {
+	const res = await standardsRepository.create(standard);
+	win?.webContents.send("standards:updated");
+	return res;
+});
+electron.ipcMain.handle("standards:update", async (_, id, standard) => {
+	const res = await standardsRepository.update(id, standard);
+	win?.webContents.send("standards:updated");
+	return res;
+});
+electron.ipcMain.handle("standards:delete", async (_, id) => {
+	const res = await standardsRepository.delete(id);
+	win?.webContents.send("standards:updated");
+	return res;
+});
+electron.ipcMain.handle("dashboard:getMetrics", async (_, filters) => {
+	return dashboardRepository.getMetrics(filters);
+});
+function createWindow() {
+	win = new electron.BrowserWindow({
+		width: 1600,
+		height: 768,
+		icon: node_path.default.join(__dirname, "../src/assets/logo-calibracao-lhf.png"),
+		title: "Calibração LHF",
+		webPreferences: {
+			preload: node_path.default.join(__dirname, "preload.js"),
+			contextIsolation: true,
+			nodeIntegration: false
+		}
+	});
+	if (VITE_DEV_SERVER_URL) win.loadURL(VITE_DEV_SERVER_URL);
+	else win.loadFile(node_path.default.join(process.env.DIST, "index.html"));
+}
+electron.app.on("window-all-closed", () => {
+	if (process.platform !== "darwin") {
+		electron.app.quit();
+		win = null;
+	}
+});
+electron.app.whenReady().then(createWindow);
+//#endregion

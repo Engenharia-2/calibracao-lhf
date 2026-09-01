@@ -1,1 +1,152 @@
-let e=require("electron");console.log(`[Preload] Injetando a ponte de comunicação segura...`),e.contextBridge.exposeInMainWorld(`electron`,{authLogin:(t,n)=>(console.log(`[Preload] Roteando chamada de Login para a IPC`),e.ipcRenderer.invoke(`auth:login`,t,n)),authRegister:(t,n,r,i)=>(console.log(`[Preload] Roteando chamada de Registro para a IPC`),e.ipcRenderer.invoke(`auth:register`,t,n,r,i)),saveCalibration:t=>(console.log(`[Preload] Roteando saveCalibration para a IPC`),e.ipcRenderer.invoke(`calibration:save`,t)),getCalibrationHistory:t=>(console.log(`[Preload] Buscando histórico de calibração para o equipamento...`,t),e.ipcRenderer.invoke(`calibration:getByEquipment`,t)),updateCalibrationHeader:(t,n,r)=>(console.log(`[Preload] Solicitando atualização de cabeçalho de calibração...`,{id:t,clientId:n,createdAt:r}),e.ipcRenderer.invoke(`calibration:updateHeader`,t,n,r)),getEquipments:()=>(console.log(`[Preload] Buscando lista de equipamentos...`),e.ipcRenderer.invoke(`equipments:getAll`)),createEquipment:(t,n,r,i,a)=>(console.log(`[Preload] Solicitando criação de equipamento...`,{op:t,ns:n,name:r,equipmentType:i,measurementRange:a}),e.ipcRenderer.invoke(`equipments:create`,t,n,r,i,a)),updateEquipment:(t,n,r,i,a,o)=>(console.log(`[Preload] Solicitando atualização de equipamento...`,{id:t,op:n,ns:r,name:i,equipmentType:a,measurementRange:o}),e.ipcRenderer.invoke(`equipments:update`,t,n,r,i,a,o)),deleteEquipment:t=>(console.log(`[Preload] Solicitando exclusão de equipamento...`,t),e.ipcRenderer.invoke(`equipments:delete`,t)),getClients:()=>(console.log(`[Preload] Buscando lista de clientes...`),e.ipcRenderer.invoke(`clients:getAll`)),createClient:(t,n,r,i,a)=>(console.log(`[Preload] Solicitando criação de cliente...`,{company:t,cnpj:n,email:r,adress:i,city:a}),e.ipcRenderer.invoke(`clients:create`,t,n,r,i,a)),updateClient:(t,n,r,i,a,o)=>(console.log(`[Preload] Solicitando atualização de cliente...`,{id:t,company:n,cnpj:r,email:i,adress:a,city:o}),e.ipcRenderer.invoke(`clients:update`,t,n,r,i,a,o)),deleteClient:t=>(console.log(`[Preload] Solicitando exclusão de cliente...`,t),e.ipcRenderer.invoke(`clients:delete`,t)),getTemplates:()=>(console.log(`[Preload] Buscando todos os templates de formulários...`),e.ipcRenderer.invoke(`templates:getAll`)),getTemplateById:t=>(console.log(`[Preload] Buscando template pelo ID:`,t),e.ipcRenderer.invoke(`templates:getById`,t)),createTemplate:t=>(console.log(`[Preload] Solicitando criação de template...`,t),e.ipcRenderer.invoke(`templates:create`,t)),updateTemplate:(t,n)=>(console.log(`[Preload] Solicitando atualização de template...`,{id:t,template:n}),e.ipcRenderer.invoke(`templates:update`,t,n)),deleteTemplate:t=>(console.log(`[Preload] Solicitando exclusão de template...`,t),e.ipcRenderer.invoke(`templates:delete`,t)),getStandards:()=>(console.log(`[Preload] Buscando todos os padrões de referência...`),e.ipcRenderer.invoke(`standards:getAll`)),getStandardById:t=>(console.log(`[Preload] Buscando padrão pelo ID:`,t),e.ipcRenderer.invoke(`standards:getById`,t)),createStandard:t=>(console.log(`[Preload] Solicitando criação de padrão...`,t),e.ipcRenderer.invoke(`standards:create`,t)),updateStandard:(t,n)=>(console.log(`[Preload] Solicitando atualização de padrão...`,{id:t,standard:n}),e.ipcRenderer.invoke(`standards:update`,t,n)),deleteStandard:t=>(console.log(`[Preload] Solicitando exclusão de padrão...`,t),e.ipcRenderer.invoke(`standards:delete`,t)),onStandardsUpdated:t=>{console.log(`[Preload] Registrando ouvinte de atualização de padrões...`);let n=()=>t();return e.ipcRenderer.on(`standards:updated`,n),()=>{e.ipcRenderer.removeListener(`standards:updated`,n)}},getDashboardMetrics:t=>(console.log(`[Preload] Solicitando métricas do dashboard...`,t),e.ipcRenderer.invoke(`dashboard:getMetrics`,t)),on:(t,n)=>{e.ipcRenderer.on(t,n)},removeListener:(t,n)=>{e.ipcRenderer.removeListener(t,n)}});
+let electron = require("electron");
+//#region electron/preload.ts
+console.log("[Preload] Injetando a ponte de comunicação segura...");
+electron.contextBridge.exposeInMainWorld("electron", {
+	authLogin: (email, password) => {
+		console.log("[Preload] Roteando chamada de Login para a IPC");
+		return electron.ipcRenderer.invoke("auth:login", email, password);
+	},
+	authRegister: (name, email, password, signatureBase64) => {
+		console.log("[Preload] Roteando chamada de Registro para a IPC");
+		return electron.ipcRenderer.invoke("auth:register", name, email, password, signatureBase64);
+	},
+	saveCalibration: (data) => {
+		console.log("[Preload] Roteando saveCalibration para a IPC");
+		return electron.ipcRenderer.invoke("calibration:save", data);
+	},
+	getCalibrationHistory: (equipmentId) => {
+		console.log("[Preload] Buscando histórico de calibração para o equipamento...", equipmentId);
+		return electron.ipcRenderer.invoke("calibration:getByEquipment", equipmentId);
+	},
+	updateCalibrationHeader: (id, clientId, createdAt) => {
+		console.log("[Preload] Solicitando atualização de cabeçalho de calibração...", {
+			id,
+			clientId,
+			createdAt
+		});
+		return electron.ipcRenderer.invoke("calibration:updateHeader", id, clientId, createdAt);
+	},
+	getEquipments: () => {
+		console.log("[Preload] Buscando lista de equipamentos...");
+		return electron.ipcRenderer.invoke("equipments:getAll");
+	},
+	createEquipment: (op, ns, name, equipmentType, measurementRange) => {
+		console.log("[Preload] Solicitando criação de equipamento...", {
+			op,
+			ns,
+			name,
+			equipmentType,
+			measurementRange
+		});
+		return electron.ipcRenderer.invoke("equipments:create", op, ns, name, equipmentType, measurementRange);
+	},
+	updateEquipment: (id, op, ns, name, equipmentType, measurementRange) => {
+		console.log("[Preload] Solicitando atualização de equipamento...", {
+			id,
+			op,
+			ns,
+			name,
+			equipmentType,
+			measurementRange
+		});
+		return electron.ipcRenderer.invoke("equipments:update", id, op, ns, name, equipmentType, measurementRange);
+	},
+	deleteEquipment: (id) => {
+		console.log("[Preload] Solicitando exclusão de equipamento...", id);
+		return electron.ipcRenderer.invoke("equipments:delete", id);
+	},
+	getClients: () => {
+		console.log("[Preload] Buscando lista de clientes...");
+		return electron.ipcRenderer.invoke("clients:getAll");
+	},
+	createClient: (company, cnpj, email, adress, city) => {
+		console.log("[Preload] Solicitando criação de cliente...", {
+			company,
+			cnpj,
+			email,
+			adress,
+			city
+		});
+		return electron.ipcRenderer.invoke("clients:create", company, cnpj, email, adress, city);
+	},
+	updateClient: (id, company, cnpj, email, adress, city) => {
+		console.log("[Preload] Solicitando atualização de cliente...", {
+			id,
+			company,
+			cnpj,
+			email,
+			adress,
+			city
+		});
+		return electron.ipcRenderer.invoke("clients:update", id, company, cnpj, email, adress, city);
+	},
+	deleteClient: (id) => {
+		console.log("[Preload] Solicitando exclusão de cliente...", id);
+		return electron.ipcRenderer.invoke("clients:delete", id);
+	},
+	getTemplates: () => {
+		console.log("[Preload] Buscando todos os templates de formulários...");
+		return electron.ipcRenderer.invoke("templates:getAll");
+	},
+	getTemplateById: (id) => {
+		console.log("[Preload] Buscando template pelo ID:", id);
+		return electron.ipcRenderer.invoke("templates:getById", id);
+	},
+	createTemplate: (template) => {
+		console.log("[Preload] Solicitando criação de template...", template);
+		return electron.ipcRenderer.invoke("templates:create", template);
+	},
+	updateTemplate: (id, template) => {
+		console.log("[Preload] Solicitando atualização de template...", {
+			id,
+			template
+		});
+		return electron.ipcRenderer.invoke("templates:update", id, template);
+	},
+	deleteTemplate: (id) => {
+		console.log("[Preload] Solicitando exclusão de template...", id);
+		return electron.ipcRenderer.invoke("templates:delete", id);
+	},
+	getStandards: () => {
+		console.log("[Preload] Buscando todos os padrões de referência...");
+		return electron.ipcRenderer.invoke("standards:getAll");
+	},
+	getStandardById: (id) => {
+		console.log("[Preload] Buscando padrão pelo ID:", id);
+		return electron.ipcRenderer.invoke("standards:getById", id);
+	},
+	createStandard: (standard) => {
+		console.log("[Preload] Solicitando criação de padrão...", standard);
+		return electron.ipcRenderer.invoke("standards:create", standard);
+	},
+	updateStandard: (id, standard) => {
+		console.log("[Preload] Solicitando atualização de padrão...", {
+			id,
+			standard
+		});
+		return electron.ipcRenderer.invoke("standards:update", id, standard);
+	},
+	deleteStandard: (id) => {
+		console.log("[Preload] Solicitando exclusão de padrão...", id);
+		return electron.ipcRenderer.invoke("standards:delete", id);
+	},
+	onStandardsUpdated: (callback) => {
+		console.log("[Preload] Registrando ouvinte de atualização de padrões...");
+		const subscription = () => callback();
+		electron.ipcRenderer.on("standards:updated", subscription);
+		return () => {
+			electron.ipcRenderer.removeListener("standards:updated", subscription);
+		};
+	},
+	getDashboardMetrics: (filters) => {
+		console.log("[Preload] Solicitando métricas do dashboard...", filters);
+		return electron.ipcRenderer.invoke("dashboard:getMetrics", filters);
+	},
+	on: (channel, listener) => {
+		electron.ipcRenderer.on(channel, listener);
+	},
+	removeListener: (channel, listener) => {
+		electron.ipcRenderer.removeListener(channel, listener);
+	}
+});
+//#endregion

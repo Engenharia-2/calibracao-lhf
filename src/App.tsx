@@ -8,6 +8,7 @@ import { Clients } from './pages/Clients/Clients'
 import { Calibration } from './pages/Calibration/Calibration'
 import { Standards } from './pages/Standards/Standards'
 import { Dashboard } from './pages/Dashboard/Dashboard'
+import { CalibrationHistory } from './pages/CalibrationHistory/CalibrationHistory'
 import { IEquipment } from './services/equipments/ApiEquipmentsRepository'
 
 import { MainLayout } from './components/layout/MainLayout/MainLayout'
@@ -76,6 +77,7 @@ function App() {
       {activePage === 'formularios' && <Templates />}
       {activePage === 'equipamentos' && <Equipments onCalibrate={handleCalibrateRedirect} />}
       {activePage === 'clientes' && <Clients />}
+        {activePage === 'history' && <CalibrationHistory />}
       {activePage === 'padroes' && <Standards />}
       {activePage === 'calibracao' && (
         <Calibration 
