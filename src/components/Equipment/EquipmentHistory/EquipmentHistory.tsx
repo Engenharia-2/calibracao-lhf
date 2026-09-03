@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { FileDown, TableProperties } from 'lucide-react';
 import { IEquipment } from '../../../services/equipments/ApiEquipmentsRepository';
 import { ReadonlyCalibrationGrid, ReadonlySection } from '../../Calibration/ReadonlyCalibrationGrid/ReadonlyCalibrationGrid';
 import { Button } from '../../ui/Button/Button';
@@ -170,22 +171,25 @@ export function EquipmentHistory({ equipment, onBack }: EquipmentHistoryProps) {
                           {rec.overall_status}
                         </span>
                       </td>
-                      <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <Button 
-                          size="sm"
-                          variant="danger" 
-                          onClick={() => setSelectedRecord(rec)}
-                        >
-                          Visualizar Planilha
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          disabled={isPdfGenerating === rec.id}
-                          onClick={() => handleDownloadPdf(rec)}
-                        >
-                          {isPdfGenerating === rec.id ? 'Gerando...' : 'PDF'}
-                        </Button>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <button 
+                            className="btn-action-sm btn-action-slate" 
+                            onClick={() => setSelectedRecord(rec)}
+                            title="Visualizar Planilha"
+                          >
+                            <TableProperties size={15} /> Planilha
+                          </button>
+                          <button
+                            onClick={() => handleDownloadPdf(rec)}
+                            className="btn-action-sm btn-action-blue"
+                            disabled={isPdfGenerating === rec.id}
+                            title="Baixar Certificado PDF"
+                          >
+                            <FileDown size={15} />
+                            {isPdfGenerating === rec.id ? '...' : 'PDF'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

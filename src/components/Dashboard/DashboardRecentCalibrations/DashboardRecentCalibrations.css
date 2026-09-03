@@ -69,31 +69,6 @@
   color: #ef4444;
 }
 
-.btn-download-recent {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-download-recent:hover {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-download-recent:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .no-table-data {
   text-align: center;
   padding: 40px 0;

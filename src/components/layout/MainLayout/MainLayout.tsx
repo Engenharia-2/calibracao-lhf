@@ -20,6 +20,7 @@ export function MainLayout({ children, currentUser, onLogout, activePage, onNavi
     'clientes': 'Gerenciamento de Clientes',
     'padroes': 'Padrões de Referência RBC',
     'calibracao': 'Execução de Calibrações',
+    'history': 'Histórico de Calibrações',
   };
   const currentTitle = pageTitles[activePage] || 'Painel de Controle';
 

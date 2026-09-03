@@ -62,7 +62,7 @@ export function DashboardRecentCalibrations({
                   <td>
                     <button
                       onClick={() => onDownloadPdf(item)}
-                      className="btn-download-recent"
+                      className="btn-action-sm btn-action-blue"
                       disabled={isDownloading === item.id}
                       title="Baixar Certificado PDF"
                     >

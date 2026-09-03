@@ -355,3 +355,43 @@ input[type="number"] {
   background-color: #fef2f2;
   color: #b91c1c;
 }
+
+
+/* Padronizacao de Botoes de Acao de Tabela (Pequenos) */
+.btn-action-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 2.75em;
+  border: 1px solid transparent;
+}
+.btn-action-sm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-action-blue {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+.btn-action-blue:hover:not(:disabled) {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-action-slate {
+  background-color: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+  border-color: rgba(100, 116, 139, 0.2);
+}
+.btn-action-slate:hover:not(:disabled) {
+  background-color: #64748b;
+  color: white;
+}

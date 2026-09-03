@@ -91,9 +91,6 @@ export function Calibration({ currentUser, preselectedEquipment, onClearPreselec
             </div>
           ) : (
             <div className="form-group calibration-form-group">
-              <label htmlFor="equipmentSearch" className="calibration-form-label">
-                Pesquisar Equipamento
-              </label>
               <input
                 id="equipmentSearch"
                 type="text"
