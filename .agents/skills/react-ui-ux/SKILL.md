@@ -1,20 +1,25 @@
 ---
-name: React UI/UX & Vanilla CSS
-description: Regras e padrões para desenvolvimento da camada visual e de UI no projeto de calibração. Acionado em tarefas relacionadas ao Frontend e React.
+name: react-ui-ux
+description: Implementar ou revisar telas e componentes React do Calibração LHF usando o sistema visual existente e CSS vanilla.
 ---
 
-# Diretrizes de UI/UX e Frontend React
+# React UI/UX e CSS vanilla
 
-## 1. Design System e Estilização
-*   **Apenas CSS Vanilla:** Não utilize TailwindCSS ou frameworks CSS externos a menos que explicitamente solicitado pelo usuário.
-*   **Design Premium e Moderno:** A interface deve ter cores ricas (Dark Mode elegante, glassmorphism se apropriado), tipografia moderna (ex: Inter, Roboto) e não usar cores padrão de navegador.
-*   **Micro-animações:** Adicione efeitos sutis de hover e transições suaves para melhorar a interatividade e a sensação de resposta do aplicativo.
+Antes de criar estilos, trace a tela até seus CSS, componentes compartilhados e estados visuais. Reutilize tokens, classes e componentes já governantes; não invente uma segunda linguagem visual.
 
-## 2. Princípios SOLID no Frontend
-*   **Single Responsibility Principle (SRP):** Componentes React (`src/components/`, `src/pages/`) devem ser "burros" (Dumb Components) sempre que possível. Eles recebem `props` e disparam eventos. Toda a lógica pesada de domínio deve estar em abstrações fora dos componentes.
-*   **Separação de Preocupações:** Nunca acesse o Node.js (`fs`, `path`) ou banco de dados diretamente de um componente React. Utilize sempre os wrappers expostos no `window.electron` via `preload.ts`.
+## Implementação
 
-## 3. Desempenho em Formulários de Calibração
-*   Os formulários de calibração possuem estruturas profundas (Pontos > Ciclos > Leituras).
-*   **Mutações e Re-renders:** Evite re-renderizar todo o formulário de calibração a cada digitação (keystroke) em um campo de input. Utilize técnicas de otimização como uncontrolled components, debouncing ou bibliotecas otimizadas para formulários grandes para evitar travamentos de UI.
-*   **Imutabilidade:** Quando atualizar o estado (useState/useReducer), nunca modifique os objetos diretamente. Sempre retorne novas referências.
+- Use CSS vanilla. Não adicione framework de estilos sem solicitação explícita.
+- Componentes apresentam dados e eventos; extraia coordenação complexa para hooks e regras de negócio para o domínio.
+- Não acesse Node.js, banco ou `fetch` diretamente em componentes.
+- Modele estados de carregamento, vazio, erro, sucesso e desabilitado quando forem alcançáveis.
+- Preserve navegação por teclado, foco visível, rótulos e contraste nas alterações relevantes.
+- Use atualizações imutáveis para pontos, ciclos e leituras.
+
+## Formulários grandes
+
+Não aplique memoização, debounce ou inputs não controlados por suposição. Primeiro identifique o re-render ou atraso observável; então escolha a menor otimização que preserve validação, foco e consistência do estado.
+
+## Verificação
+
+Teste o comportamento alterado no menor nível útil. Para mudanças visuais, confira os tamanhos de janela relevantes e estados da própria tela, sem extrapolar uma revisão local para todo o produto.

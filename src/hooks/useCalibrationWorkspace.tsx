@@ -6,6 +6,7 @@ import { IClient } from '../services/clients/ApiClientsRepository';
 import { UserData } from '../App';
 import { pdf } from '@react-pdf/renderer';
 import { CalibrationPDFDocument } from '../components/Calibration/CalibrationPDFDocument/CalibrationPDFDocument';
+import { createCalibrationStandardSnapshot } from '../domain/calibration/calibrationStandardSnapshot';
 import { useCalibrationGrid } from './useCalibrationGrid';
 import { calculatePointMetrology, parseNumber, round, matchStandardPoint } from '../core/domain/metrology';
 import { IStandardPoint } from '../services/standards/ApiStandardsRepository';
@@ -222,7 +223,7 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
 
         return {
           sectionName: section.name,
-          standard: sectionStandard ? { id: sectionStandard.id, code: sectionStandard.code, name: sectionStandard.name, certificate_number: sectionStandard.certificate_number } : null,
+          standard: sectionStandard ? createCalibrationStandardSnapshot(sectionStandard) : null,
           applyCorrection: sectionCorrections[sIdx] || false,
             scaleMode: sectionScaleModes[sIdx]?.mode || 'point',
             scaleValue: sectionScaleModes[sIdx]?.scaleValue || null,
@@ -234,7 +235,6 @@ export function useCalibrationWorkspace({ currentUser, equipment, onSuccess }: U
         equipmentId: equipment.id,
         clientId: selectedClientId ? Number(selectedClientId) : null,
         templateId: selectedTemplateId,
-        standardId: null,
         operator,
         location,
         temperature: parseNumber(temperature),

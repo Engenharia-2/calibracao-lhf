@@ -1,5 +1,12 @@
 import 'dotenv/config';
+
+// Chumbando o IP da Nuvem/Servidor Local
+// process.env.VITE_API_BASE_URL = 'http://192.168.0.10:3002/api';
+process.env.VITE_API_BASE_URL = 'http://localhost:3002/api';
 import { app, BrowserWindow, ipcMain } from 'electron'
+
+// Silenciador de erros de cache GPU no Windows
+app.disableHardwareAcceleration();
 import path from 'node:path'
 import { ApiAuthRepository } from '../src/services/auth/ApiAuthRepository'
 import { AuthService } from '../src/domain/auth/AuthService'
@@ -162,7 +169,7 @@ ipcMain.handle('dashboard:getMetrics', async (_, filters) => {
 })
 
 function createWindow() {
-  const iconPath = path.join(__dirname, '../src/assets/logo-calibracao-lhf.png')
+  const iconPath = path.join(process.env.VITE_PUBLIC, 'logo-calibracao-lhf.png')
   win = new BrowserWindow({
     width: 1600,
     height: 768,
@@ -172,6 +179,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      webSecurity: false,
     },
   })
 

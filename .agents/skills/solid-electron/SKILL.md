@@ -1,17 +1,33 @@
 ---
-name: SOLID & Electron IPC (QA/Arquitetura)
-description: Regras estritas de arquitetura limpa, SOLID e segurança no Electron (IPC, preload.ts). Usado em inspeção de código e desenvolvimento Core.
+name: solid-electron
+description: Implementar ou revisar janelas, preload, IPC e capacidades nativas do Electron com isolamento e contratos mínimos.
 ---
 
-# Inspeção de Qualidade (QA), Arquitetura e Electron
+# Electron e IPC seguro
 
-## 1. Segurança e Comunicação (Electron)
-*   **Isolamento Contextual (`contextIsolation: true`):** É estritamente proibido utilizar `require` ou APIs nativas do Node.js (como `fs`, `child_process`) dentro da pasta `src/` (Renderer).
-*   **Ponte Segura (`preload.ts`):** Toda comunicação entre o Renderer (React) e o Main Process (Node) deve ocorrer via `contextBridge`.
-*   **IPC Handlers (Main):** No processo principal, mantenha os *handlers* de IPC organizados e leves. O Main Process deve apenas receber o pedido, repassar para a camada de Serviço/Domínio e devolver o resultado ao Renderer.
+## Invariantes
 
-## 2. Padrões Arquiteturais e de Revisão de Código
-Esta *skill* define o baseline para o Agente de QA (Quality Assurance) avaliar os Pull Requests ou edições locais:
-*   **Checagem SOLID:** O QA deve apontar falhas de SRP (classes/componentes com múltiplos motivos para mudar), OCP (arquivos core precisando ser alterados para introduzir um equipamento novo) e DIP (acoplamento com frameworks).
-*   **Limpeza e Clareza:** Rejeite variáveis com nomes ruins e uso de "Magic Numbers". Exija constantes e enumerações TypeScript.
-*   **Sem Modificações (Somente Leitura):** Agentes invocados com perfil de QA **não devem** tentar corrigir o código sozinhos. Seu papel é expor os defeitos arquiteturais, sugerir a solução adequada (citando o arquivo e linha) e aguardar que o desenvolvedor ou agente apropriado corrija.
+- Preserve `contextIsolation: true` e `nodeIntegration: false`.
+- Renderer não importa `fs`, `path`, `child_process`, Electron ou outras APIs Node.js.
+- Exponha apenas operações específicas pelo `contextBridge`; não exponha `ipcRenderer` cru nem um canal arbitrário.
+- Valide origem, canal e payload conforme o risco da operação.
+- Mantenha handlers IPC finos e encaminhe trabalho para serviços ou adapters.
+- Não envie segredos ou dados pessoais para logs do renderer.
+
+## Alterações coordenadas
+
+Ao criar ou modificar uma operação, revise em conjunto:
+
+1. tipo compartilhado ou contrato;
+2. declaração de `window.electron`;
+3. função exposta no preload;
+4. handler no processo principal;
+5. serviço chamado pelo handler;
+6. consumidor no renderer;
+7. teste do caminho principal e dos erros relevantes.
+
+Evite `any` novo na fronteira. Restrinja listeners a canais conhecidos e sempre disponibilize remoção da assinatura.
+
+## Modo de revisão
+
+Se o agente ativo for somente leitura, não corrija o código. Retorne achados priorizados com arquivo, linha, impacto e validação recomendada. Não transforme preferências de estilo em falhas de segurança.

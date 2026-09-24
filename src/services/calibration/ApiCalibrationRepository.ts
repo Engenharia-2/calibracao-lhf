@@ -1,7 +1,7 @@
 // Repositório de calibrações conectando à API Express
 
 export class ApiCalibrationRepository {
-  private apiUrl = `${process.env.VITE_API_BASE_URL || 'http://localhost:3002/api'}/calibration`;
+  private apiUrl = `${process.env.VITE_API_BASE_URL || 'http://192.168.0.10:3002/api'}/calibration`;
 
   
   async getAll(): Promise<any[]> {

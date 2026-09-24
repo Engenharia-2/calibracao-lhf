@@ -28,10 +28,11 @@ interface PDFPoint {
 interface PDFSection {
   sectionName: string;
   standard?: {
-    id: number | string;
+    id?: number | string;
     code: string;
     name: string;
     certificate_number: string;
+    certificate_url?: string | null;
   } | null;
   points: PDFPoint[];
 }
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   subtitle: {
-    fontSize: 9,
+    fontSize: 12,
     color: '#666666',
     marginTop: 4,
   },
@@ -188,7 +189,8 @@ const styles = StyleSheet.create({
     padding: '6 8',
     fontSize: 8,
   },
-  colTarget: { flex: 1.5 },
+  colTarget: { flex: 1 },
+  colUnit: { flex: 1, textAlign: 'center' },
   colStandard: { flex: 2, textAlign: 'right' },
   colEquipment: { flex: 2, textAlign: 'right' },
   colDeviation: { flex: 1.5, textAlign: 'right' },
@@ -228,8 +230,10 @@ const styles = StyleSheet.create({
   },
   signatureContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 40,
+    justifyContent: 'center',
+    marginTop: 'auto',
+    paddingTop: 40,
+    paddingBottom: 30,
     paddingHorizontal: 20,
   },
   signatureBox: {
@@ -406,7 +410,14 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
               standardsList.map((std: any, idx) => (
                 <View key={idx} style={{ marginBottom: 6 }}>
                   <Text style={[{ color: '#333333' }, styles.boldText]}>[{std.code}] {std.name}</Text>
-                  <Text style={{ color: '#333333' }}>Certificado: {std.certificate_number}</Text>
+                  <Text style={{ color: '#333333' }}>
+                    Certificado:{' '}
+                    {std.certificate_url ? (
+                      <Link src={std.certificate_url} style={{ color: '#076DF2', textDecoration: 'underline' }}>
+                        {std.certificate_number}
+                      </Link>
+                    ) : std.certificate_number}
+                  </Text>
                 </View>
               ))
             ) : record.standard_code ? (
@@ -458,6 +469,7 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
                 {/* Header da Tabela */}
                   <View style={styles.tableHeader}>
                     <Text style={[styles.th, { flex: 1.5 }]}>Ponto</Text>
+                    <Text style={[styles.th, styles.colUnit]}>Unidade</Text>
                     <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>SMP</Text>
                     <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>SMC</Text>
                     <Text style={[styles.th, { flex: 1, textAlign: 'center' }]}>Desvio</Text>
@@ -477,17 +489,20 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
                       <Text style={[styles.td, { flex: 1.5 }, styles.boldText]}>
                         {pt.group ? pt.group : `Ponto ${pIdx + 1}`}
                       </Text>
-                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
-                        {pt.averageStandard !== undefined && pt.averageStandard !== null ? `${pt.averageStandard} ${pt.unit || ''}`.trim() : '-'}
+                      <Text style={[styles.td, styles.colUnit]}>
+                        {pt.unit || '-'}
                       </Text>
                       <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
-                        {pt.averageEquipment !== undefined && pt.averageEquipment !== null && pt.averageEquipment !== '' ? `${formatWithResolution(pt.averageEquipment, decs)} ${pt.unit || ''}`.trim() : '-'}
-                      </Text>
-                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }, styles.boldText]}>
-                        {pt.deviation !== undefined && pt.deviation !== null && pt.deviation !== '' ? `${formatWithResolution(pt.deviation, decs)} ${pt.unit || ''}`.trim() : '-'}
+                        {pt.averageStandard !== undefined && pt.averageStandard !== null ? pt.averageStandard : '-'}
                       </Text>
                       <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
-                        {pt.uncertaintyExpanded !== undefined && pt.uncertaintyExpanded !== null && pt.uncertaintyExpanded !== '' ? `${Number(String(pt.uncertaintyExpanded).replace(',','.')).toFixed(2)} ${pt.unit || ''}`.trim() : '-'}
+                        {pt.averageEquipment !== undefined && pt.averageEquipment !== null && pt.averageEquipment !== '' ? formatWithResolution(pt.averageEquipment, decs) : '-'}
+                      </Text>
+                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
+                        {pt.deviation !== undefined && pt.deviation !== null && pt.deviation !== '' ? formatWithResolution(pt.deviation, decs) : '-'}
+                      </Text>
+                      <Text style={[styles.td, { flex: 1, textAlign: 'center' }]}>
+                        {pt.uncertaintyExpanded !== undefined && pt.uncertaintyExpanded !== null && pt.uncertaintyExpanded !== '' ? Number(String(pt.uncertaintyExpanded).replace(',','.')).toFixed(2) : '-'}
                       </Text>
                       <Text style={[styles.td, { flex: 0.5, textAlign: 'center' }]}>
                         {pt.kFactor !== undefined && pt.kFactor !== null ? pt.kFactor : 2}
@@ -535,7 +550,7 @@ export function CalibrationPDFDocument({ record, equipmentName, equipmentNs, equ
         )}
 
         {/* Assinatura */}
-        <View style={[styles.signatureContainer, { justifyContent: 'center' }]} wrap={false}>
+        <View style={styles.signatureContainer} wrap={false}>
           <View style={styles.signatureBox}>
             {record.operator_signature_url ? (
               <Image src={record.operator_signature_url} style={{ width: 140, height: 60, objectFit: 'contain' }} />
